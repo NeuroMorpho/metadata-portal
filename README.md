@@ -1,14 +1,10 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
   <h3 align="center">Metadata Portal</h3>
 
   <p align="center">
-    An opensource project for annotation of neuronal reconstructions.
+     An open-source project for annotation of neuronal reconstructions.
     <br />
     <a href="http://cng-nmo-meta.orc.gmu.edu/"><strong>View online »</strong></a>
     <br />
@@ -26,7 +22,6 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Usage](#usage)
-* [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
@@ -99,13 +94,6 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 
 
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
-
-
-
 <!-- CONTRIBUTING -->
 ## Contributing
 
@@ -121,18 +109,16 @@ Contributions are what make the open source community such an amazing place to b
 
 <!-- LICENSE -->
 ## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the GPL 3.0 License.
 
 
 
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
+Kayvan Bijari - kbijari[@]gmu[dot]edu
 Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
+Source Link: []()
 
 
 <!-- ACKNOWLEDGEMENTS -->
@@ -151,10 +137,7 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 
 
 
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=flat-square
 [contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=flat-square
@@ -167,5 +150,5 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: images/main.png
 
