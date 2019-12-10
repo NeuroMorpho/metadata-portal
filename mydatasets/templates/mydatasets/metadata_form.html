@@ -1,0 +1,1053 @@
+{% extends "mydatasets/base.html" %}
+{% load crispy_forms_tags %}
+{% load app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -25px" class="navbar-brand" href="{% url 'mydatasets:dataset_detail' pkr %}">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>{{dataset_name}}</sub>
+</a>
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>{%if add%}(new){%else%}{{group}}<sub>(edit)</sub>{%endif%}</sub>
+</a>
+{% endblock %}
+
+{% block heading %}
+  {% if dataset %}
+  {% if add %}<h2>Add Dataset</h2>{% else %}<h2>Edit Dataset</h2>{% endif %}
+  {% endif %}
+  {% if neuron %}
+  {% if add %}<h2>Add a Neuron Group</h2>{%else%}<h2>Edit Neuron Group</h2>{% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<form method="post" id="metadata-form" action="{% url 'mydatasets:neuron_edit' pkr pk %}">
+  {% csrf_token %}
+
+  {% if form.errors %}
+    <p>please resolve the follwoing errors in the form:</p>
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{field.label}}: {{ error }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        <p><strong>Please!</strong> fill out the following form as complete as you can.</p>
+        <p>Hover example of each field for more explanation</p>
+    </div>
+    {% endif %}
+    
+    {% comment %}
+    {% endcomment %}
+    
+    {% if pk  %}
+    <p><a href="{% url 'mydatasets:prepopulate' pkr pk %}" class="text-primary">Click here if you want to prepopulate the fields with values from the previous group!</a></p>
+    {% endif %}
+    
+    <!-- outside area -->
+    <div class="form-group">
+        <div class="row">
+            <div class="col-sm-12">
+                <label for="group_name">Group name (required)</label>
+                <input type="text" name="group_name" class="form-control" id="id_group_name" aria-describedby="group_name" {% if  form.group_name.value %} value="{{form.group_name.value}}" {%else%} placeholder="Control" {%endif%}>
+                <small title="Please specify a name for this group (Control, Lesion, Wilde-Type, ...)" id="id_group_name" class="form-text text-muted" data-toggle="tooltip" data-placement="auto">Exp: Control, Lesion, ...</small>
+                <!-- <a title="Please specify a name for this group (Control, Lesion, Wilde-Type, ...)" data-toggle="tooltip" data-placement="auto">...</a> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Subject</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="number_of_data_files">Number of data files</label>
+                        <input name="number_of_data_files" type="number" min="0" class="form-control" id="number_of_data_files" aria-describedby="number_of_data_files" {% if  form.number_of_data_files.value %} value="{{form.number_of_data_files.value}}" {%else%} placeholder="Exp: 100" {%endif%}>
+                        <small title="How many data files are available in this group?" id="number_of_data_files" class="form-text text-muted">Enter the number of data files in this group</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="species">Species</label>
+                        <select class="form-control" id="id_species" name="species">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.species.choices %}
+                            <option value="{{ value }}" {% if form.species.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small title="Please select the species from the list, if the species in your experiment is not available in the list select 'not in the list' and insert it yourself." id="species" class="form-text text-muted">Please select your spicies from the list (Rat, Zebrafish, ...)</small>
+                        <div class="form-group">
+                            <!-- <label>your species is not in the list?</label> -->
+                            <input  {% include "mydatasets/check_new_value.html" with item=form.new_species.value %}  class="form-control" placeholder="your new species" name="new_species" style="border-color: maroon;" type="text">
+                            <small class="text-danger" id="new_species_help">
+                                    <body onload="quickHits();">
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="Strain">Strain</label>
+                        <select class="form-control" id="id_strain" name="strain">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.strain.choices %}
+                            <option label="{{text}}" value="{{ value }}" {% if form.strain.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small title="Please find the strain from the list, if it is not available in the list, select 'not in the list' and insert it yourself." id="strain" class="form-text text-muted">Please select the strain (Albino, BALB/c, ...)</small>
+                        <div class="form-group">
+                            <!-- <label {% include "mydatasets/check_new_value.html" with item=form.new_strain.value %} >New Strain</label> -->
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_strain.value %}  class="form-control border border-danger" placeholder="please enter your new strain" name="new_strain" style="border-color: maroon;" type="text">
+                            <small class="text-danger" id="new_strain_help"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="row" >
+                    <div class="col-sm-6">
+                        {% with var="gender" help=""%}
+                        <label for="{{var}}">{{var|title}}</label>
+                        <select class="form-control" id="id_gender" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.gender.choices %}
+                            <option value="{{ value }}" {% if form.gender.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small title="if it is not available in the list, select 'not in the list' and insert it yourself." id="{{var}}" class="form-text text-muted">Please specify the gender (male, female, ...)</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_gender.value %} class="form-control" placeholder="Gender" name="new_gender" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_gender_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% with var="development_stage" help="" %}
+                        <label for="{{var}}">Development Stage</label>
+                        <select class="form-control" id="id_development_stage" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.development_stage.choices %}
+                            <option value="{{ value }}" {% if form.development_stage.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small title="if it is not available in the list, select 'not in the list' and insert it yourself." id="{{var}}" class="form-text text-muted">What is the developmental stage of the animal? (young, adult, old)</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_development_stage.value %} class="form-control" placeholder="Development Stage" name="new_development_stage" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_development_stage_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-4">
+                        {% with var="min_age" help=""%}
+                        <label for="{{var}}">Min Age</label>
+                        <input type="number" step=".01" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.min_age.value != None %} value="{{form.min_age.value}}" {%else%} placeholder="{{var}}" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">Please specify the minimum age of the animal.</small>
+                    {% endwith %}
+                    </div>
+                    <div class="col-sm-4">
+                        {% with var="max_age" help=""%}
+                        <label for="{{var}}">Max Age</label>
+                        <input type="number" step=".01" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.max_age.value != None %} value="{{form.max_age.value}}" {%else%} placeholder="{{var}}" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">Please specify the maximum age of the animal.</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-4">
+                        {% with var="age_type" help="days, months, years" %}
+                        <label for="{{var}}">Age Scale</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.age_type.choices %}
+                            <option value="{{ value }}" {% if form.age_type.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">Please select the age scale (days, month, years)</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_age_type.value %} class="form-control" placeholder="Age Scale" name="new_age_type" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_age_type_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="min_weight" help=" "%}
+                        <label for="{{var}}">Min Weight (grams)</label>
+                        <input type="number" step="any" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.min_weight.value != None %} value="{{form.min_weight.value}}" {%else%} placeholder="{{var}}" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">Please specify the minimum weight of the animal.</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% with var="max_weight" help=" "%}
+                        <label for="{{var}}">Max Weight (grams)</label>
+                        <input type="number" step="any" class="form-control" id="id_{{var}}" name="{{var}}" {% if form.max_weight.value != None %} value="{{form.max_weight.value}}" {%else%} placeholder="{{var}}" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">Please specify the maximum weight of the animal.</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <hr  size=23>
+            <div class="form-group">
+                <label for="comment">
+                    Review Comments: (put each comment in a new line)
+                </label>
+                <!-- needs fixing -->
+                <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="subject_comments" id="subject_comments">{{form.subject_comments.value|default_if_none:""}}</textarea>
+            </div>
+
+        </div> <!-- panel body -->
+    </div> <!-- panel -->
+
+    <!-- Anatomy -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Anatomy</div>
+        <div class="panel-body">
+            <!-- brain region -->
+            <p class="bg-info">
+                Please provide as many details as possible regarding the soma location, even if putative (if the soma was not reconstructed or exact anatomical boundaries were not traced)
+            </p>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="brain_region1" help="Exp: Hippocampus, Neocortex, Hind brain ..." %}
+                        <label for="{{var}}">Brain Region of Soma Location</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.brain_region1.choices %}
+                                <option value="{{ value }}" {% if form.brain_region1.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" title="Please find the region from the list, if it is not available in the list, select 'not in the list' and insert it yourself." class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_brain_region1.value %} class="form-control" placeholder="Brain region" name="new_brain_region1" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_brain_region1_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% with var="brain_region2" help="Exp: Dentate gyrus, Motor cortex, Medulla" %}
+                        <label for="{{var}}">Brain Region of Sub-soma Location (secondary)</label>
+                        <select class="form-control" id="id_brain_region2" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.brain_region2.choices %}
+                                <option value="{{ value }}" {% if form.brain_region2.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" title="Please find the region from the list, if it is not available in the list, select 'not in the list' and insert it yourself." class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_brain_region2.value %} class="form-control" placeholder="Brain region" name="new_brain_region2" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_brain_region2_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="brain_region3" help="Exp: Granule cell layer, Bordering between M1 and M2, Cochlear nucleus (you can select multiple options)" %}
+                        <label for="{{var}}">Brain Region of Sub-sub-soma Location (tertiary)</label>
+                        <select multiple size="5" class="form-control" multiple="" tabindex="4" id="id_brain_region3" name="brain_region3">
+                            <!-- {% include "mydatasets/multi_not_selected_option.html" %} -->
+                            {% for value, text in form.fields.brain_region3.choices %}
+                            <option value="{{ value }}" {% if value in form.brain_region3.value|to_int %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <br> <input type="hidden" name="brain_region3_order" id="region3order" value="{{form.brain_region3_order.value}}">
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" {%if form.new_brain_region3.value %} checked {%endif%}  value=true name="new-region3-input" type="checkbox" id="additional-brain-region"> Do you have additional tertiary region?
+                                </label>
+                                <small class="form-text text-muted">(if you have tertiary options which are not available in the list, please mark the checkbox and enter them yourself, each in a single line.)</small>
+                            </div>
+                            <textarea class="form-control" {% include "mydatasets/check_new_value.html" with item=form.new_brain_region3.value %}  name="new_brain_region3" style="border-color: maroon;" rows="4">{{form.new_brain_region3.value|default_if_none:""}}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- cell type -->
+            <p class="bg-info">
+                Please provide as many details as possible regarding the neuron class, even if putative (assumed but not measured directly).
+            </p>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="cell_type1" help="Exp: Glia, Interneuron" %}
+                        <label for="{{var}}">Cell-type</label>
+                        <select class="form-control" id="id_cell_type1" name="{{var}}" data-url = "{% url 'mydatasets:second_level' %}" >
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.cell_type1.choices %}
+                                <option value="{{ value }}" {% if form.cell_type1.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small title="Please find the cell from the list, if it is not available in the list, select 'not in the list' and insert it yourself." id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group" id='testing'>
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_cell_type1.value %} class="form-control" placeholder="Cell type" name="new_cell_type1" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_cell_type1_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% with var="cell_type2" help="Exp: Astrocyte, Cajal-Retzius" %}
+                        <label for="{{var}}">Cell-type Class (secondary)</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.cell_type2.choices %}
+                                <option value="{{ value }}" {% if form.cell_type2.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small title="Please find the cell from the list, if it is not available in the list, select 'not in the list' and insert it yourself." id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_cell_type2.value %} class="form-control" placeholder="Cell type" name="new_cell_type2" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_cell_type2_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="cell_type3" help="Exp: Type I, Early-born  (you can select multiple options)" %}
+                        <label for="{{var}}">Cell-type Sub-class (tertiary)</label>
+                        <select multiple size="5" class="form-control" id="id_{{var}}" name="{{var}}">
+                            <!-- {% include "mydatasets/multi_not_selected_option.html" %} -->
+                            {% for value, text in form.fields.cell_type3.choices %}
+                            <option value="{{ value }}" {% if value in form.cell_type3.value|to_int %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <br> <input type="hidden" name="cell_type3_order" id="celltype3order" value="{{form.cell_type3_order.value}}">
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input"  {%if form.new_cell_type3.value %} checked {%endif%}  value=true name="new-cell3-input" type="checkbox" id="additional-cell-type"> Do you have additional tertiary cell-type?
+                                </label>
+                                <small class="form-text text-muted">(if you have tertiary options which are not available in the list, please mark the checkbox and enter them yourself, each in a single line.)</small>
+                            </div>
+                            <textarea class="form-control" {% include "mydatasets/check_new_value.html" with item=form.new_cell_type3.value %}  name="new_cell_type3" style="border-color: maroon;" rows="4">{{form.new_cell_type3.value|default_if_none:""}}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr  size=23>
+            <div class="form-group">
+                <label for="comment">
+                    Review Comments: (put each comment in a new line)
+                </label>
+                <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="anatomy_comments" id="anatomy_comments">{{form.anatomy_comments.value|default_if_none:""}}</textarea>
+            </div>
+
+        </div> <!-- panel body -->
+    </div> <!-- panel -->
+
+    <!-- Experiment and Reconstruction -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Experiment and Reconstruction</div>
+        <div class="panel-body">
+            <!-- protocol and condition  -->
+            <div class="form-group">
+                <div class="row">
+                <div class="col-sm-6">
+                    {% with var="experimental_protocol" help="" %}
+                    <label for="{{var}}">Experimental Protocol</label>
+                    <select class="form-control" id="id_experimental_protocol" name="{{var}}">
+                        {% include "mydatasets/not_selected_option.html" %}
+                        {% for value, text in form.fields.experimental_protocol.choices %}
+                            <option value="{{ value }}" {% if form.experimental_protocol.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    <p align="justify">
+                        <small title="in vivo means that the neuron was labeled in the live animal (e.g. biocytin injection in anesthesized animal or genetic GFP construct); in vitro means that the neuron was labeld in the slice (e.g. biocytin injection after brain sectioning and patch clamp recording); culture refers to primary or organotypic conditions." id="{{var}}" class="form-text text-muted">Exp: in vivo, in vitro, culture</small>
+                    </p>
+                    <div class="form-group">
+                        <input {% include "mydatasets/check_new_value.html" with item=form.new_experimental_protocol.value %} class="form-control" placeholder="experimental protocol" name="new_experimental_protocol" style="border-color: maroon;" type="text" >
+                        <small class="text-danger" id="new_experimental_protocol_help"></small>
+                    </div>
+                    {% endwith %}
+                </div>
+                <div class="col-sm-6">
+                    {% with var="experimental_condition" help="Exp: Control Vs. Treatment, or insert below if not available." %}
+                    <label for="{{var}}">Experimental Condition</label>
+                    <select class="form-control" id="id_experimental_condition" name="{{var}}">
+                        {% include "mydatasets/not_selected_option.html" %}
+                        {% for value, text in form.fields.experimental_condition.choices %}
+                            <option value="{{ value }}" {% if form.experimental_condition.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                    <div class="form-group">
+                        <input {% include "mydatasets/check_new_value.html" with item=form.new_experimental_condition.value %} class="form-control" placeholder="your new experimental condition" name="new_experimental_condition" style="border-color: maroon;" type="text" >
+                        <small class="text-danger" id="new_experimental_condition_help"></small>
+                    </div>
+                    {% endwith %}
+                </div>
+                </div>
+            </div> 
+
+            <!-- fixation stain slice -->
+            <div class="form-group">
+                <div class="row">
+                    <!-- <div class="col-sm-4">
+                        {% with var="fixation_method" help=""%}
+                        <label for="{{var}}">Fixation Method</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.fixation_method.value %} value="{{form.fixation_method.value}}" {%else%} placeholder="{{var}}" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div> -->
+                    <div class="col-sm-6">
+                        {% with var="stain" help="Exp: Golgi, Dil, Biocytin" %}
+                        <label for="{{var}}">Stain</label>
+                        <select class="form-control" id="id_stain" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.stain.choices %}
+                                <option value="{{ value }}" {% if form.stain.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_stain.value %} class="form-control" placeholder="stain" name="new_stain" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_stain_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        <!-- to be replaced with the new one -->
+                        <!-- {% with var="slice_tickness" help=""%}
+                        <label for="{{var}}">Slice Thickness</label>
+                        <input type="text" class="form-control" id="id__slice_tickness" name="{{var}}" aria-describedby="{{var}}" {% if form.slice_tickness.value %} value="{{form.slice_tickness.value}}" {%else%} placeholder="{{var}}" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %} -->
+
+                        {% with var="slice_tickness" help="0.01, 0.1, 1..." %}
+                        <label for="{{var}}">Slice Thickness</label>
+                        <select class="form-control" id="id_slice_tickness" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.slice_tickness.choices %}
+                                <option value="{{ value }}" {% if form.slice_tickness.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_slice_tickness.value %} class="form-control" placeholder="slice tickness" name="new_slice_tickness" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_slice_tickness_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            
+           
+            <!-- direction tissue reconstruction -->
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="slicing_direction" help="Exp: transverse, horizontal, sagittal, coronal ..." %}
+                        <label for="{{var}}">Slicing Direction</label>
+                        <select class="form-control" id="id_slicing_direction" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.slicing_direction.choices %}
+                                <option value="{{ value }}" {% if form.slicing_direction.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_slicing_direction.value %} class="form-control" placeholder="slicing direction" name="new_slicing_direction" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_slicing_direction_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% with var="reconstruction_software" help="Exp: Arbor, Imaris" %}
+                        <label for="{{var}}">Reconstruction Software</label>
+                        <select class="form-control" id="id_reconstruction_software" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.reconstruction_software.choices %}
+                                <option value="{{ value }}" {% if form.reconstruction_software.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_reconstruction_software.value %} class="form-control" placeholder="reconstruction software" name="new_reconstruction_software" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_reconstruction_software_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+
+                <!-- objective type and magnification -->
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="objective_type" help="Exp: Dry, Oil, Water" %}
+                        <label for="{{var}}">Objective Type</label>
+                        <select class="form-control" id="id_objective_type" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.objective_type.choices %}
+                                <option value="{{ value }}" {% if form.objective_type.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_objective_type.value %} class="form-control" placeholder="objective type" name="new_objective_type" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_objective_type_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        <!-- {% with var="objective_magnification" help=""%}
+                        <label for="{{var}}">Objective Magnification</label>
+                        <input type="number" class="form-control" id="id__{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.objective_magnification.value %} value="{{form.objective_magnification.value}}" {%else%} placeholder="100" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %} -->
+
+                        {% with var="objective_magnification" help="0.1, 10, 100..." %}
+                        <label for="{{var}}">Objective Magnification</label>
+                        <select class="form-control" id="id_objective_magnification" name="{{var}}">
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.objective_magnification.choices %}
+                                <option value="{{ value }}" {% if form.objective_magnification.value|to_int == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        <div class="form-group">
+                            <input {% include "mydatasets/check_new_value.html" with item=form.new_objective_magnification.value %} class="form-control" placeholder="Objective Magnification" name="new_objective_magnification" style="border-color: maroon;" type="text" >
+                            <small class="text-danger" id="new_objective_magnification_help"></small>
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+
+                <!-- shrinkage -->
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="tissue_shrinkage" help="Shrinkage is reported or not? (if yes please specify the reported values)"%}
+                        <label for="{{var}}">Tissue Shrinkage</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% for value, text in form.fields.tissue_shrinkage.choices %}
+                                <option value="{{ value }}" {% if form.tissue_shrinkage.value == value %} selected {% endif %}>{{text}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.tissue_shrinkage.value %} value="{{form.tissue_shrinkage.value}}" {%else%} placeholder="{{var}}" {%endif%}> -->
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-2">
+                        {% with var="reported_value" help=""%}
+                        <label for="{{var}}">Reported Value</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.reported_value.value %} value="{{form.reported_value.value}}" {%else%} placeholder="0.00" {%endif%} {% if form.tissue_shrinkage.value != 'Reported'%} disabled {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-2">
+                        {% with var="reported_xy" help=""%}
+                        <label for="{{var}}">Reported XY</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.reported_xy.value %} value="{{form.reported_xy.value}}" {%else%} placeholder="0.00" {%endif%} {% if form.tissue_shrinkage.value != 'Reported'%} disabled {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-2">
+                        {% with var="reported_z" help=""%}
+                        <label for="{{var}}">Reported Z</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.reported_z.value %} value="{{form.reported_z.value}}" {%else%} placeholder="0.00" {%endif%} {% if form.tissue_shrinkage.value != 'Reported'%} disabled {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="shrinkage_corrected" help="Shrinkage is corrected or not? (if yes please specify the corrected values)"%}
+                        <label for="{{var}}">Shrinkage Corrected</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}" {% if form.tissue_shrinkage.value != 'Reported'%} disabled {%endif%}>
+                            {% for value, text in form.fields.shrinkage_corrected.choices %}
+                                <option value="{{ value }}" {% if form.shrinkage_corrected.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.shrinkage_corrected.value %} value="{{form.shrinkage_corrected.value}}" {%else%} placeholder="{{var}}" {%endif%}> -->
+                        <small id="id_{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-2">
+                        {% with var="corrected_value" help=""%}
+                        <label for="{{var}}">Corrected Value</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.corrected_value.value %} value="{{form.corrected_value.value}}" {%else%} placeholder="0.00" {%endif%} {% if form.shrinkage_corrected.value != 'Y'%} disabled {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-2">
+                        {% with var="corrected_xy" help=""%}
+                        <label for="{{var}}">Corrected XY</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.corrected_xy.value %} value="{{form.corrected_xy.value}}" {%else%} placeholder="0.00" {%endif%} {% if form.shrinkage_corrected.value != 'Y'%} disabled {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-2">
+                        {% with var="corrected_z" help=""%}
+                        <label for="{{var}}">Corrected Z</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.corrected_z.value %} value="{{form.corrected_z.value}}" {%else%} placeholder="0.00" {%endif%} {% if form.shrinkage_corrected.value != 'Y'%} disabled {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div> <!-- form group -->
+            <!-- Review area -->
+            <hr  size=23>
+            <div class="form-group">
+                <label for="comment">
+                    Review Comments: (put each comment in a new line)
+                </label>
+                <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="experiment_comments" id="experiment_comments">{{form.experiment_comments.value|default_if_none:""}}</textarea>
+            </div>
+
+        </div>
+    </div>
+   
+    <!-- Data -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Data</div>
+        <div class="panel-body">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm-6">
+                    {% with var="numerical_units" help="Micrometer or Pixel(if Pixel specify the pixel size)" %}
+                    <label for="{{var}}">Numerical Units</label>
+                    <select class="form-control" id="id_{{var}}" name="{{var}}">
+                        {% for value, text in form.fields.numerical_units.choices %}
+                            <option value="{{ value }}" {% if form.numerical_units.value == value %} selected {% endif %}>{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                    <div class="form-group">
+                        <input {% include "mydatasets/check_new_value.html" with item=form.pixel_size.value %} class="form-control" placeholder="Exp: 10x10 or 10 by 10" name="pixel_size" type="text" >
+                    </div>
+                    {% endwith %}
+                </div>
+                <div class="col-sm-6">
+                    {% with var="data_type" help="Exp: swc, asc, nrx, dat ..." %}
+                    <label for="{{var}}">Data Type</label>
+                    <select class="form-control" id="id_{{var}}" name="{{var}}">
+                        {% include "mydatasets/not_selected_option.html" %}
+                        {% for value, text in form.fields.data_type.choices %}
+                            <option value="{{ value }}" {% if form.data_type.value == value %} selected {% endif %}>{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                    <div class="form-group">
+                        <input {% include "mydatasets/check_new_value.html" with item=form.new_data_type.value %} class="form-control" placeholder="data type" name="new_data_type" style="border-color: maroon;" type="text" >
+                        <small class="text-danger" id="new_data_type_help"></small>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        <!-- <div class="form-group">
+            <div class="row">
+                <div class="col-sm-12">
+                    {% with var="notes" help="Any additional notes about the reconstructions that you would like to include."%}
+                    <label for="{{var}}">Notes</label>
+                    <textarea rows="3" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}">{% if form.notes.value %}{{form.notes.value}} {%endif%}</textarea>
+                    <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                    {% endwith %}
+                </div>
+            </div>
+        </div> -->
+        <hr  size=23>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm-12">
+                    <label for="comment">
+                        Review Comments: (put each comment in a new line)
+                    </label>
+                    <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="data_comments" id="data_comments">{{form.data_comments.value|default_if_none:""}}</textarea>
+                </div>
+            </div>
+        </div>
+
+        </div> <!-- panel body -->
+    </div>
+    <!-- </div> -->
+
+    <!-- Neuron Description -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Neuron Description & Physical Integrity </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="" help="" %}
+                        <p>Which of the following neuronal compartments are included in your reconstruction files? And what portions do you consider <b>complete</b>, <b>incomplete</b> or <b>moderately complete</b> (due to slice sectioning, partial labeling, or resolution limits)?</p>
+                        <!-- <div class="checkbox">
+                            <label name="soma" class="checkbox-inline"><input name="soma" id="id_soma" type="checkbox"  value="True" {%if form.soma.value %} checked {%endif%} >Soma</label>
+                            <label name="axon" class="checkbox-inline"><input name="axon" id="id_axon" type="checkbox"  value="True" {%if form.axon.value %} checked {%endif%} >Axon</label>
+                            <label name="dendrites" class="checkbox-inline"><input name="dendrites" id="id_dendrites" type="checkbox" value="True" {%if form.dendrites.value %} checked {%endif%} >Dendrites</label> 
+                            <label name="neurites" class="checkbox-inline"><input name="neurites" id="id_neurites" type="checkbox" value="True" {%if form.neurites.value %} checked {%endif%} >Neurites and processes</label> 
+                        </div> -->
+                        {% endwith %}
+                        <table class="table" cellspacing="0" width="80%">
+                            <thead>
+                                <tr>
+                                    <td colspan="2">
+                                        Neuronal compartments
+                                    </td>
+                                    <td>
+                                        Physical Integrity
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label name="soma" class="checkbox-inline"><input name="soma" id="id_soma" type="checkbox"  value="True" {%if form.soma.value %} checked {%endif%} >Soma</label>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2" class="col-xs-2 ce" style="vertical-align:middle;">
+                                        Axon & Dendrites
+                                    </td>
+                                    <td>
+                                        <label name="axon" class="checkbox-inline"><input name="axon" id="id_axon" type="checkbox"  value="True" {%if form.axon.value %} checked {%endif%} >Axon</label>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="id_axon_integrity" name="axon_integrity" {%if form.axon.value == False %} disabled {%endif%}>
+                                            {% for value, text in form.fields.axon_integrity.choices %}
+                                                <option value="{{ value }}" {% if form.axon_integrity.value == value %} selected {% endif %}>{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label name="dendrites" class="checkbox-inline"><input name="dendrites" id="id_dendrites" type="checkbox" value="True" {%if form.dendrites.value %} checked {%endif%} >Dendrites</label> 
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="id_dendrites_integrity" name="dendrites_integrity" {%if form.dendrites.value == False %} disabled {%endif%}>
+                                            {% for value, text in form.fields.dendrites_integrity.choices %}
+                                                <option value="{{ value }}" {% if form.dendrites_integrity.value == value %} selected {% endif %}>{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2" class="col-xs-2" style="vertical-align:middle;">
+                                        Neurites & Processes
+                                    </td>
+                                    <td>
+                                        <label name="neurites" class="checkbox-inline"><input name="neurites" id="id_neurites" type="checkbox" value="True" {%if form.neurites.value %} checked {%endif%} >Neurites</label> 
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="id_neurites_integrity" name="neurites_integrity" {%if form.neurites.value == False %} disabled {%endif%}>
+                                            {% for value, text in form.fields.neurites_integrity.choices %}
+                                                <option value="{{ value }}" {% if form.neurites_integrity.value == value %} selected {% endif %}>{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label name="processes" class="checkbox-inline"><input name="processes" id="id_processes" type="checkbox" value="True" {%if form.processes.value %} checked {%endif%} >Processes</label> 
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="id_processes_integrity" name="processes_integrity" {%if form.processes.value == False %} disabled {%endif%}>
+                                            {% for value, text in form.fields.dendrites_integrity.choices %}
+                                                <option value="{{ value }}" {% if form.processes_integrity.value == value %} selected {% endif %}>{{ text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="other_descriptions" help="Exp: spines, varicosities, anatomical boundaries, etc."%}
+                        <label for="{{var}}">Other Descriptions</label>
+                        <textarea rows="2"  class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}">{% if form.other_descriptions.value %}{{form.other_descriptions.value}}{%endif%}</textarea>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div> -->
+
+            <hr  size=23>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="comment">
+                            Review Comments: (put each comment in a new line)
+                        </label>
+                        <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="description_comments" id="description_comments">{{form.description_comments.value|default_if_none:""}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">Morphological Attributes</div>
+        <div class="panel-body">
+            <!-- dim angle diameter -->
+            <div class="form-group">
+                <p>Which of the following measurements do you consider reliable in your reconstruction files?</p>
+                <div class="row">
+                    <div class="col-sm-4">
+                        {% with var="dimension" help="Is the Z (depth) position also recorded, or only X-Y projection?" %}
+                        <label for="{{var}}">Dimension</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% for value, text in form.fields.dimension.choices %}
+                                <option value="{{ value }}" {% if form.dimension.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-4">
+                        {% with var="angles" help="Full tree meandering or dendrogram with straight branches?"%}
+                        <label for="{{var}}">Angles</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% for value, text in form.fields.angles.choices %}
+                                <option value="{{ value }}" {% if form.angles.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.angles.value %} value="{{form.angles.value}}" {%else%} placeholder="{{var}}" {%endif%}> -->
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-4">
+                        {% with var="diameter" help="If the diameter was recorded, what was the minimum detectable vaue?"%}
+                        <label for="{{var}}">Diameter</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}">
+                            {% for value, text in form.fields.diameter.choices %}
+                                <option value="{{ value }}" {% if form.diameter.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.diameter.value %} value="{{form.diameter.value}}" {%else%} placeholder="{{var}}" {%endif%}> -->
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="other_attributes" help="Please provide any other attributes here"%}
+                        <label for="{{var}}">Other Attributes</label>
+                        <textarea rows="2" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}">{% if form.other_attributes.value %}{{form.other_attributes.value}}{%endif%}</textarea>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div> -->
+
+            <hr  size=23>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="comment">
+                            Review Comments: (put each comment in a new line)
+                        </label>
+                        <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="morphological_comments" id="morphological_comments">{{form.morphological_comments.value|default_if_none:""}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {%comment%}
+    <!-- Physical Integrity -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Physical Integrity</div>
+        <div class="panel-body">
+            <!-- integrity -->
+            <div class="form-group">
+                <p>Which of the following portions do you consider "complete", "incomplete" or "moderately complete" (due to slice sectioning, partial labeling, or resolution limits)?</p>
+                <div class="row">
+                    <div class="col-sm-6">
+                        {% with var="axon_integrity" help="" %}
+                        <label for="{{var}}">Axon Integrity</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}" {%if form.axon.value == False %} disabled {%endif%}>
+                            {% for value, text in form.fields.axon_integrity.choices %}
+                                <option value="{{ value }}" {% if form.axon_integrity.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% with var="dendrites_integrity" help="" %}
+                        <label for="{{var}}">Dendrites Integrity</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}" {%if form.dendrites.value == False %} disabled {%endif%}>
+                            {% for value, text in form.fields.dendrites_integrity.choices %}
+                                <option value="{{ value }}" {% if form.dendrites_integrity.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <hr  size=23>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="comment">
+                            Review Comments: (put each comment in a new line)
+                        </label>
+                        <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="integrity_comments" id="integrity_comments">{{form.integrity_comments.value|default_if_none:""}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {%endcomment%}
+
+    <!-- contributor information-->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Contributor infromation</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="archive_name" help="The reconstructions will be archived under this name (Exp: Ascoli archive, Jacobs archive, Markram archive, Yuste archive, ...)"%}
+                        <label for="{{var}}">Archive Name</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.archive_name.value %} value="{{form.archive_name.value}}" {%else%} placeholder="Archive name" {%endif%}>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="lab" help="" %}
+                        <label for="{{var}}">Lab / Institute / Address</label>
+                        <select class="form-control" id="id_{{var}}" name="{{var}}" {%if form.axon.value == 'to change later' %} disabled {%endif%}>
+                            {% include "mydatasets/not_selected_option.html" %}
+                            {% for value, text in form.fields.lab.choices %}
+                                <option value="{{ value }}" {% if form.lab.value == value %} selected {% endif %}>{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="{{var}}" class="form-text text-muted">
+                            Name and address of the laboratory that should be acknowledged in <a href="http://neuromorpho.org/neuroMorpho/acknowl.jsp">NeuroMorpho.Org Acknowledgements</a> (if the lab is not yet achknowledged in NeuroMorpho.Org, please insert it yourself)
+                        </small>
+                        {% endwith %}
+                    </div>
+                    <!-- <div class="col-sm-2">
+                        <div id="ack"><strong>Ascoli Lab</strong></div>
+                    </div> -->
+                </div>
+                <div class="row" id="id_new_lab" {%if form.lab_name.value == None %} hidden {%endif%}>
+                    <div class="col-sm-4">
+                        {% with var="lab_name" help=""%}
+                        <label for="{{var}}">Lab Name</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.lab_name.value %} value="{{form.lab_name.value}}" {%else%} placeholder="Ascoli Lab" {%endif%}>
+                        <!-- <small id="{{var}}" class="form-text text-muted">Name of the laboratory that should be acknowledged in <a href="http://neuromorpho.org/neuroMorpho/acknowl.jsp">NeuroMorpho.Org Acknowledgements</a></small> -->
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-4">
+                        {% with var="institute" help=""%}
+                        <label for="{{var}}">Institute</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.institute.value %} value="{{form.institute.value}}" {%else%} placeholder="Krasnow Institute for Advanced Study" {%endif%}>
+                        <!-- <small id="{{var}}" class="form-text text-muted">Institute Name</small> -->
+                        {% endwith %}
+                    </div>
+                    <div class="col-sm-4">
+                        {% with var="address" help=""%}
+                        <label for="{{var}}">Address</label>
+                        <input type="text" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}" {% if form.address.value %} value="{{form.address.value}}" {%else%} placeholder="George Mason University, Virginia, USA" {%endif%}>
+                        <!-- <small id="{{var}}" class="form-text text-muted">Address</small> -->
+                        <!-- <small id="{{var}}" class="form-text text-muted">Name and address of the laboratory that should be acknowledged in <a href="http://neuromorpho.org/neuroMorpho/acknowl.jsp">NeuroMorpho.Org Acknowledgements</a> (if the lab is already achknowledged in NeuroMorpho.Org, you don't have to fill out this part)</small> -->
+                        {% endwith %}
+                    </div>                 
+                </div>
+            </div>
+
+            <hr  size=23>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="comment">
+                            Review Comments: (put each comment in a new line)
+                        </label>
+                        <textarea style="border-color:#4cbef7;" {% if not request.user|has_group:"Admin" %} disabled {% endif %} class="form-control" rows="3" name="contributor_comments" id="contributor_comments">{{form.contributor_comments.value|default_if_none:""}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- additional note -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">General Notes</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <p>Please provide any additional notes here:</p>
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% with var="notes" help="Any additional notes about the reconstructions that you would like to include."%}
+                        <!-- <label for="{{var}}">Notes</label> -->
+                        <textarea rows="3" class="form-control" id="id_{{var}}" name="{{var}}" aria-describedby="{{var}}">{% if form.notes.value %}{{form.notes.value}} {%endif%}</textarea>
+                        <small id="{{var}}" class="form-text text-muted">{{help}}</small>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <p>All Done?</p> -->
+    <div title="submit group" class="btn-group  btn-lg btn-block" role="group">
+        <button type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="Submit the Group!"> Submit! </button>
+    </div>
+
+    <div class="btn-group btn-lg" role="group" aria-label="save">
+        <button title="propagate current changes to other groups" type="submit" class="btn btn-primary" name="propagate" value="Save & Propagate" onclick="return prop()">Save and propagate changes</button>
+        <button title="save the group and open next group" type="submit" class="btn btn-primary" name="save_and_next" value="Save & Next Group">Save and open next group</button>
+    </div>
+    
+    <div class="btn-group-vertical" id="top">
+        <button title="submit group" type="submit" class="btn btn-info btn-xs" name="submit"  value="Submit the Group!">Submit</button>
+        <button title="propagate current changes to other groups" type="submit" class="btn btn-info btn-xs" name="propagate" value="Save & Propagate" onclick="return prop()">Propagate</button>
+        <button title="save the group and open next group" type="submit" class="btn btn-info btn-xs" name="save_and_next" value="Save & Next Group">Save & next</button>
+    </div>
+
+</form>
+
+{% endblock %}

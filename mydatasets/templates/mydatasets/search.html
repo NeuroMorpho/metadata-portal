@@ -1,0 +1,70 @@
+{% extends "mydatasets/base.html" %}
+{% load app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>Search
+</a>
+{% endblock %}
+
+{% block content %}
+
+<h3>
+		<span class="glyphicon glyphicon-list"></span> MetaSearch
+</h3>
+
+<div class="well well">
+	<div class="btn-toolbar">
+		<div class="row">
+			<div class="col-sm-offset-1 col-sm-10">          
+				<form type="get" action="{% url 'mydatasets:search' %}">
+				<div class="input-group">
+					<input type="search" class="form-control" id="query" name="query" value="{{query}}" placeholder="What're you looking for?"/>
+					<div class="input-group-btn">
+					<button class="btn btn-primary" type="submit">
+						Search <span class="glyphicon glyphicon-search"></span>
+					</button>
+					</div> <!-- input group btn -->
+				</div> <!-- input group -->
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-offset-1 col-sm-10">
+				{%if hits %}
+				<small>{{hits}} resutls found ({{runtime|floatformat:3}} sec.) for "{{query}}"...</small>
+				{%endif%}
+			</div>
+		</div>
+	</div>
+</div>
+
+<table class="table table-striped table-hover" id="search" name="search">
+	<thead>
+		<tr><td></td></tr>
+	</thead>
+	<tbody>
+			<!-- <small>test</small> -->
+		{% for d in data %}
+		<tr>
+			<!-- <th>data:</th> -->
+			{% if d.search %}
+			<td>{{d.search}}</td>
+			{%else%}
+			<td>{{d}}</td>
+			{%endif%}
+		</tr>
+		{%empty%}
+		<tr>
+			<td>Nothing found!</td>
+		</tr>
+		{%endfor%}
+	</tbody>
+</table>
+	
+
+{% endblock %}
+
+{% block footer %}
+    Created by {{ neuron.user }} on {{ neuron.date }}
+{% endblock %}

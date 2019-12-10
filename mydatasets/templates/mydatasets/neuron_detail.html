@@ -1,0 +1,748 @@
+{% extends "mydatasets/base.html" %}
+{% load  app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -25px" class="navbar-brand" href="{% url 'mydatasets:dataset_detail' neuron.dataset.id %}">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>{{neuron.dataset.archive_name|title}}</sub>
+</a>
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>{{neuron.group_name}}<sub>(view)</sub></sub>
+</a>
+{% endblock %}
+
+{% block content %}
+
+{%comment%}
+<h2>
+    {{neuron.group_name}}
+    {% if user == neuron.user or user.is_superuser%}
+		(<a href="{% url 'mydatasets:neuron_edit' neuron.dataset.id neuron.id %}"> edit </a>)
+    {% endif %}
+</h2>
+{%endcomment%}
+
+<br>
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="well well" id="grpname">
+			<div class="row">
+				<div class="col-sm-11">
+					<p style="font-size:115%;">
+					<strong>Summary: </strong>
+					[{{neuron.number_of_data_files|title}}/{{neuron.experimental_protocol}}/{{neuron.experimental_condition}}/{{neuron.species|title}}/{{neuron.brain_region1|title}}/{{neuron.cell_type1|title}}]
+					<!-- Neurons, which is a part of <strong> {{neuron.dataset.archive_name}} </strong> Dataset. -->
+					</p>
+				</div>
+				<div class="col-sm-1">
+				{% if user == neuron.user or user.is_superuser%}
+					<div class="btn-toolbar">
+						<a class="btn btn-primary" href="{% url 'mydatasets:neuron_edit' neuron.dataset.id neuron.id %}"> <span class="glyphicon glyphicon-edit"></span> Edit</a>  
+					</div>
+				{%else%}
+					<small>(please login to be able to edit)</small>
+				{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- <div class="col-sm-2">
+		test!
+	</div> -->
+</div>
+
+<div class="row"> <!-- table details -->
+	<div class="col-sm-10">
+
+<!-- subject -->
+<!-- <h4><span class="label label-info label-cal">Subject</span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<!-- <p style='font-size:24px' class='fas'>&#128001;</p> -->
+	<h4>Subject &#128001; </h4>
+	<table class="table table-striped table-hover">
+	<tr>
+		<th>group:</th>
+		<th >{{neuron.group_name}}</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>species:</th>
+		<th>
+			{% if neuron.species %}
+			{{neuron.species}}
+			{% elif neuron.new_species|length %}
+			<font color="red">{{neuron.new_species}}<sup>* </sup></font>
+			{% else %}
+			<font color="blue">Not inserted!</font>
+			{% endif %}
+		</th>
+		<th>
+			{% include "mydatasets/confirmation.html" with table="Species" entry=neuron.new_species %}
+		</th>
+	</tr>
+
+	<tr>
+		<th>strain:</th>
+		<th>
+			{% if neuron.strain %}
+			{{neuron.strain}}
+			{% elif neuron.new_strain|length %}
+			<font color="red">{{neuron.new_strain}}<sup>*</sup></font>
+			{% else %}
+			<font color="blue">Not inserted!</font>
+			{% endif %}
+		</th>
+		<th>
+			{% include "mydatasets/confirmation.html" with parent=neuron.species table="Strain" entry=neuron.new_strain %}
+		</th>
+	</tr>
+	<tr>
+		<th>gender:</th>
+		<th>
+			{% if neuron.gender %}
+			{{neuron.gender}}
+			{% elif neuron.new_gender|length %}
+			<font color="red">{{neuron.new_gender}}<sup>*</sup></font>
+			{% else %}
+			<font color="blue">Not inserted!</font>
+			{% endif %}
+		</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>development stage:</th>
+		<!-- <th>{{neuron.development_stage}}</th> -->
+		<th>
+			{% if neuron.development_stage %}
+			{{neuron.development_stage}}
+			{% elif neuron.new_development_stage|length %}
+			<font color="red">{{neuron.new_development_stage}}<sup>*</sup></font>
+			{% else %}
+			<font color="blue">Not inserted!</font>
+			{% endif %}
+		</th>
+		<th>
+			{% include "mydatasets/confirmation.html" with table="Development" entry=neuron.new_development_stage %}
+		</th>
+	</tr>
+	<tr>
+		<th>age:</th>
+		<th>
+			{% if neuron.age_type is None and neuron.new_age_type|length == 0 %}
+				<font color="blue">Not inserted!</font>
+			{% else %}
+				between {{neuron.min_age}} and {{neuron.max_age}} 
+				{% if neuron.new_age_type|length %}
+					{{neuron.new_age_type}}
+				{% else %}
+					{{neuron.age_type}} 
+				{% endif %}
+			{% endif %}
+		</th>
+		<th>
+			{% if neuron.min_age|add:"0" >  neuron.max_age|add:"0" %}
+				<!-- <font color="red">Value error!</font> -->
+			{% endif %}
+		</th>
+	</tr>
+	<tr>
+		<th>weight:</th>
+		<th>
+			{% if neuron.min_weight == 0 and neuron.max_weight == 0 %}
+				<font color="blue">Not inserted!</font>
+			{% else %}
+				between {{neuron.min_weight|default:"?" }} and {{neuron.max_weight|default:"?" }} grams
+			{% endif %}
+		</th>
+		<th>
+			{% if neuron.min_weight|add:"0" >  neuron.max_weight|add:"0" %}
+				<!-- <font color="red">Value error!</font> -->
+			{% endif %}
+		</th>
+	</tr>
+	<tr>
+		<td colspan="3">
+			<!-- review comments: <br> -->
+			{% for com in neuron.subject_com %}
+			<p class="bg-info">- {{com}}</p>
+			{% endfor %}
+		</td>
+	</tr>
+	</table>
+</div>
+
+<!-- anatomy -->
+<!-- <h4><span class="label label-info">Anatomy</span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<h4>Anatomy &#129504;</h4>
+	<table class="table table-striped table-hover">
+		<tr>
+			<th>brain region:</th>
+			<!-- <th>{{neuron.brain_region1}}</th> -->
+			<th>
+				{% if neuron.brain_region1 %}
+				{{neuron.brain_region1}}
+				{% elif neuron.new_brain_region1|length %}
+				<font color="red">{{neuron.new_brain_region1}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="BrainRegion1" entry=neuron.new_brain_region1 %}
+			</th>
+		</tr>
+		<tr>
+			<th>sub-brain region:</th>
+			<!-- <th>{{neuron.brain_region2}}</th> -->
+			<th>
+				{% if neuron.brain_region2 %}
+				{{neuron.brain_region2}}
+				{% elif neuron.new_brain_region2|length %}
+				<font color="red">{{neuron.new_brain_region2}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="BrainRegion2" entry=neuron.new_brain_region2 parent=neuron.brain_region1 %}
+			</th>
+		</tr>
+		<tr>
+			<th>sub-sub-brain region:</th>
+			<!-- <th>{{neuron.brain_region3}}</th> -->
+			<th>
+				{% for e in neuron.brain_region3_order %}
+				{{e|brainregion3_get}} <br>
+				{%endfor%}
+				
+				{%comment%}
+				{% for brg in neuron.brain_region3.all %}
+					{{brg}} <br>
+				{% endfor %}
+				{%endcomment%}
+				
+				{% if neuron.new_brain_region3|length %}
+				{% for br in neuron.region3_as_list %}
+				<font color="red">{{br}}<sup>*</sup></font> <br>
+				{% endfor %}
+				{% endif %}
+				{% if neuron.new_brain_region3|length <= 0 and neuron.brain_region3.all|length <= 0 %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% for brg in neuron.brain_region3.all %}
+					<br>
+				{% endfor %}
+				{% if neuron.new_brain_region3|length %}
+				{% for br in neuron.region3_as_list %}
+				{% include "mydatasets/confirmation.html" with table="BrainRegion3" entry=br parent=neuron.brain_region2 parent1=neuron.brain_region1 %}
+				{% endfor %}
+				{% endif %}
+			</th>
+		</tr>
+		<tr>
+			<th>cell type:</th>
+			<!-- <th>{{neuron.cell_type}}</th> -->
+			<th>
+				{% if neuron.cell_type1 %}
+				{{neuron.cell_type1}}
+				{% elif neuron.new_cell_type1|length %}
+				<font color="red">{{neuron.new_cell_type1}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="CellType1" entry=neuron.new_cell_type1 %}
+			</th>
+		</tr>
+		<tr>
+			<th>sub-cell type:</th>
+			<!-- <th>{{neuron.cell_type}}</th> -->
+			<th>
+				{% if neuron.cell_type2 %}
+				{{neuron.cell_type2}}
+				{% elif neuron.new_cell_type2|length %}
+				<font color="red">{{neuron.new_cell_type2}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="CellType2" entry=neuron.new_cell_type2 parent=neuron.cell_type1 %}
+			</th>
+		</tr>
+
+		<tr>
+			<th>sub-sub cell type:</th>
+			<th>
+				{% for e in neuron.cell_type3_order %}
+				{{e|celltype3_get}} <br>
+				{%endfor%}
+				
+				{%comment%}
+				{% for cell in neuron.cell_type3.all %}
+					{{cell}} <br>
+				{% endfor %}
+				{%endcomment%}
+
+				{% if neuron.new_cell_type3|length %}
+				{% for br in neuron.cell3_as_list %}
+				<font color="red">{{br}}<sup>*</sup></font> <br>
+				{% endfor %}
+				{% endif %}
+				{% if neuron.new_cell_type3|length <= 0 and neuron.cell_type3.all|length <= 0 %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% for cell in neuron.cell_type3.all %}
+					<br>
+				{% endfor %}
+				{% if neuron.new_cell_type3|length %}
+				{% for br in neuron.cell3_as_list %}
+				{% include "mydatasets/confirmation.html" with table="CellType3" entry=br parent=neuron.cell_type2 parent1=neuron.cell_type1 %}
+				{% endfor %}
+				{% endif %}
+			</th>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<!-- review comments: <br> -->
+				{% for com in neuron.anatomy_com %}
+				<p class="bg-info">- {{com}}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+</div>
+
+
+<!-- Experiment and Reconstruction -->
+<!-- <h4><span class="label label-info">Experiment and Reconstruction</span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<h4>Experiment and Reconstruction &#x1F321;</h4>
+	<table class="table table-striped table-hover">
+		<tr>
+			<th>experimental protocol:</th>
+			<!-- <th>{{neuron.experimental_protocol}}</th> -->
+			<th>
+				{% if neuron.experimental_protocol %}
+				{{neuron.experimental_protocol}}
+				{% elif neuron.new_experimental_protocol|length %}
+				<font color="red">{{neuron.new_experimental_protocol}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="ProtocolDesign" entry=neuron.new_experimental_protocol %}
+			</th>
+		</tr>
+		<tr>
+			<th>experimental condition:</th>
+			<!-- <th>{{neuron.experimental_condition}}</th> -->
+			<th>
+				{% if neuron.experimental_condition %}
+				{{neuron.experimental_condition}}
+				{% elif neuron.new_experimental_condition|length %}
+				<font color="red">{{neuron.new_experimental_condition}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="ExperimentalCondition" entry=neuron.new_experimental_condition %}
+			</th>
+		</tr>
+		<!-- <tr>
+			<th>fixation method:</th>
+			<th>{{neuron.fixation_method}}</th>
+			<th>
+				{% if neuron.fixation_method %}
+				{{neuron.fixation_method}}
+				{% elif neuron.new_fixation_method|length %}
+				<font color="red">{{neuron.new_fixation_method}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th></th>
+		</tr> -->
+		<tr>
+			<th>stain:</th>
+			<!-- <th>{{neuron.stain}}</th> -->
+			<th>
+				{% if neuron.stain %}
+				{{neuron.stain}}
+				{% elif neuron.new_stain|length %}
+				<font color="red">{{neuron.new_stain}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="StainMethod" entry=neuron.new_stain %}
+			</th>
+		</tr>
+		<tr>
+			<th>slice thickness:</th>
+			<th>
+				{% if neuron.slice_tickness  is not None %}
+					{{neuron.slice_tickness}}
+				{% elif neuron.new_slice_tickness|length %}
+				<font color="red">{{neuron.new_slice_tickness}}<sup>*</sup></font>
+				{% else %}
+					<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+					{% include "mydatasets/confirmation.html" with table="SlicingThickness" entry=neuron.new_slice_tickness %}
+			</th>
+		</tr>
+		<tr>
+			<th>slicing direction:</th>
+			<!-- <th>{{neuron.slicing_direction}}</th> -->
+			<th>
+				{% if neuron.slicing_direction %}
+				{{neuron.slicing_direction}}
+				{% elif neuron.new_slicing_direction|length %}
+				<font color="red">{{neuron.new_slicing_direction}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="SlicingDirection" entry=neuron.new_slicing_direction %}
+			</th>
+		</tr>
+		<tr>
+			<th>tissue shrinkage:</th>
+			<th>
+				{% if neuron.tissue_shrinkage|length %}
+					{{neuron.tissue_shrinkage}} ({{neuron.reported_value|default:"?"}} XY:{{neuron.reported_xy|default:"?"}} Z:{{neuron.reported_z|default:"?"}})
+				{% else %}
+					<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>shrinkage corrected:</th>
+			<th>
+				{% if neuron.shrinkage_corrected|length %}
+					{{neuron.shrinkage_corrected}} ({{neuron.corrected_value|default:"?"}} XY:{{neuron.corrected_xy|default:"?"}} Z:{{neuron.corrected_z|default:"?"}})
+				{% else %}
+					<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>reconstruction software:</th>
+			<!-- <th>{{neuron.reconstruction_software}}</th> -->
+			<th>
+				{% if neuron.reconstruction_software %}
+				{{neuron.reconstruction_software}}
+				{% elif neuron.new_reconstruction_software|length %}
+				<font color="red">{{neuron.new_reconstruction_software}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="ReconstructionSoftware" entry=neuron.new_reconstruction_software %}
+			</th>
+		</tr>
+		<tr>
+			<th>objective type:</th>
+			<!-- <th>{{neuron.objective_type}}</th> -->
+			<th>
+				{% if neuron.objective_type %}
+				{{neuron.objective_type}}
+				{% elif neuron.new_objective_type|length %}
+				<font color="red">{{neuron.new_objective_type}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="ObjectiveType" entry=neuron.new_objective_type %}
+			</th>
+		</tr>
+		<tr>
+			<th>objective magnification:</th>
+			<th>
+				{% if neuron.objective_magnification %}
+				{{neuron.objective_magnification}}
+				{% elif neuron.new_objective_magnification|length %}
+				<font color="red">{{neuron.new_objective_magnification}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="Magnification" entry=neuron.new_objective_magnification %}
+			</th>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<!-- review comments: <br> -->
+				{% for com in neuron.experiment_com %}
+				<p class="bg-info">- {{com}}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!-- Data -->
+<!-- <h4><span class="label label-info">Data</span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<h4>Data &#9921;</h4>
+	<table class="table table-striped table-hover">
+		<tr>
+			<th>number of data files:</th>
+			<th>{{neuron.number_of_data_files}}</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>numerical units:</th>
+			<th>
+				{% if neuron.numerical_units is None %}
+				<font color="blue">Not inserted!</font>
+				{% else %}
+				{{neuron.numerical_units}}
+				{% endif %}
+			</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>pixel size (if pixel):</th>
+			<th>
+				{% if neuron.pixel_size|length %}
+					{{neuron.pixel_size}}
+				{% else %}
+					<font color="blue">Not inserted or not Pixel!</font>
+				{% endif %}
+			</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>format of data files:</th>
+			<!-- <th>{{neuron.data_type}}</th> -->
+			<th>
+				{% if neuron.data_type %}
+				{{neuron.data_type}}
+				{% elif neuron.new_data_type|length %}
+				<font color="red">{{neuron.new_data_type}}<sup>*</sup></font>
+				{% else %}
+				<font color="blue">Not inserted!</font>
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="OriginalFormat" entry=neuron.new_data_type %}
+			</th>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<!-- review comments: <br> -->
+				{% for com in neuron.data_com %}
+				<p class="bg-info">- {{com}}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!-- Neuron Description -->
+<!-- <h4><span class="label label-info"> Neuron Description & Physical Integrity</span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<h4>Neuron Description &#9883;</h4>
+	Available features in the reconstruction data!
+	<table class="table table-striped table-hover">
+		<tr>
+			<th>soma:</th>
+			<th>{{neuron.soma|yesno:"Available,Not Available"}}</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>axon:</th>
+			<th>{{neuron.axon|yesno:"Available -,Not Available"}} {{ neuron.axon_integrity|default_if_none:"" }}</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>dendrites:</th>
+			<th>{{neuron.dendrites|yesno:"Available -,Not Available"}} {{ neuron.dendrites_integrity|default_if_none:"" }}</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>Neurites:</th>
+			<th>{{neuron.neurites|yesno:"Available -,Not Available"}} {{ neuron.neurites_integrity|default_if_none:"" }}</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>Processes:</th>
+			<th>{{neuron.processes|yesno:"Available -,Not Available"}} {{ neuron.processes_integrity|default_if_none:"" }}</th>
+			<th></th>
+		</tr>
+		<!-- <tr>
+			<th>other discriptions:</th>
+			{% if neuron.other_descriptions is None %}
+			<th><font color="blue">Not inserted!</font></th>
+			{% else %}
+			<th>{{neuron.other_descriptions}}</th>
+			{% endif %}
+			<th></th>
+		</tr> -->
+		<tr>
+			<td colspan="3">
+				<!-- review comments: <br> -->
+				{% for com in neuron.description_com %}
+				<p class="bg-info">- {{com}}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!-- Morphological Attributes -->
+<!-- <h4><span class="label label-info"> Morphological Attributes </span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<h4>Morphological Attributes &#9878;</h4>
+	<table class="table table-striped table-hover">
+		<tr>
+			<th>dimension:</th>
+			{% if neuron.dimension is None %}
+			<th><font color="blue">Not inserted!</font></th>
+			{% else %}
+			<th>{{neuron.dimension}}</th>
+			{% endif %}
+			<th></th>
+		</tr>
+		<tr>
+			<th>angles:</th>
+			{% if neuron.angles is None %}
+			<th><font color="blue">Not inserted!</font></th>
+			{% else %}
+			<th>{{neuron.angles}}</th>
+			{% endif %}
+			<th></th>
+		</tr>
+		<tr>
+			<th>diameter:</th>
+			{% if neuron.diameter is None %}
+			<th><font color="blue">Not inserted!</font></th>
+			{% else %}
+			<th>{{neuron.diameter}}</th>
+			{% endif %}
+			<th></th>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<!-- review comments: <br> -->
+				{% for com in neuron.morphological_com %}
+				<p class="bg-info">- {{com}}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!-- Contributor Information -->
+<!-- <h4><span class="label label-info"> Contributor Information </span></h4> -->
+<div class="bs-callout bs-callout-primary">
+	<h4>Contributor Information &#9743;</h4>
+	<table class="table table-striped table-hover">
+		<tr>
+			<th>archive name:</th>
+			<th>{{neuron.archive_name}}</th>
+			<th></th>
+		</tr>
+		<tr>
+			<th>acknowledgements:</th>
+			{% if neuron.lab is not None %}
+			<th>
+				{{neuron.lab}}
+			</th>
+			<th></th>
+			{%else%}
+			<th>
+				{% if neuron.lab_name is None %}
+				<font color="blue">Not inserted!</font> <br>
+				{% else %}
+				{{neuron.lab_name|linebreaks}}
+				{% endif %}
+				{% if neuron.institute is None %}
+				<font color="blue">Not inserted!</font> <br>
+				{% else %}
+				{{neuron.institute|linebreaks}}
+				{% endif %}
+				{% if neuron.address is None %}
+				<font color="blue">Not inserted!</font>
+				{% else %}
+				{{neuron.address}}
+				{% endif %}
+			</th>
+			<th>
+				{% include "mydatasets/confirmation.html" with table="Lab" entry=neuron.lab_name lab=neuron.lab_name institute=neuron.institute address=neuron.address %}
+			</th>
+			{% endif %}
+		</tr>
+		<tr>
+			<th>notes:</th>
+			{% if neuron.notes|length == 0 %}
+			<th><font color="blue">Not inserted!</font></th>
+			{% else %}
+			<th>{{neuron.notes}}</th>
+			{% endif %}
+			<th></th>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<!-- review comments: <br> -->
+				{% for com in neuron.contributor_com %}
+				<p class="bg-info">- {{com}}</p>
+				{% endfor %}
+			</td>
+		</tr>
+	</table>
+</div>
+
+<div class="bs-callout bs-callout-info">
+<p> <font color="red">Entries<sup>*</sup></font> indicate items which are not available in the dataset and are added manually. </p>
+<p> <font color="blue">Entries</font> indicate items which are left blank. </p>
+<p> This group belongs to the dataset: <a href="{% url 'mydatasets:dataset_detail' neuron.dataset.id %}">{{ neuron.dataset.archive_name }}</a></p>
+</div>
+
+{% if user == neuron.user or user.is_superuser%}
+<a id="down" href="{% url 'mydatasets:neuron_edit' neuron.dataset.id neuron.id %}" class="btn btn-primary down" role="button" title="edit group" data-toggle="tooltip"><span class="glyphicon glyphicon-edit"></span></a>
+{% endif %}
+
+
+</div>
+
+<div class="col-sm-2">
+	<div class="bs-callout bs-callout-success">
+	<h4>{{neuron_list|length}} Groups:</h4>
+		{% for nrn in neuron_list %}
+		<!-- <li> -->
+			{% if neuron.id == nrn.id %}
+			<span class="glyphicon glyphicon-expand" {%if nrn|check_new_values%}style="color:red"{%endif%}></span>
+			{%else%}
+			<span class="glyphicon glyphicon-unchecked" {%if nrn|check_new_values%}style="color:red"{%endif%}></span>
+			{%endif%}
+			<a href="{% url 'mydatasets:neuron_detail' nrn.dataset_id nrn.id %}" title="{{nrn.group_name}}/{{nrn.number_of_data_files|title}}/{{nrn.experimental_protocol}}/{{nrn.experimental_condition}}/{{nrn.species|title}}/{{nrn.brain_region1|title}}/{{nrn.cell_type1|title}}">{{nrn|truncatechars:12}}</a> <br>
+		<!-- </li> -->
+		{% endfor %}
+		</div>
+	</div>
+</div>
+<!-- end of table details -->
+{% endblock %}
+
+{% block footer %}
+    Created by {{ neuron.user }} on {{ neuron.date }}
+{% endblock %}

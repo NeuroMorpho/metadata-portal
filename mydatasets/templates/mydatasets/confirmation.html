@@ -1,0 +1,18 @@
+{% load  app_filters %}
+
+{% if entry|length > 0 and request.user|has_group:"Proof" %}
+    <form class="form-inline" name="create_station" method="post" action="{% url 'mydatasets:proof_entry'  neuron.dataset.id neuron.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="table"   value={{table}} />
+        <input type="hidden" name="entry"   value="{{entry}}" />
+        <input type="hidden" name="parent"  value="{{parent}}" />
+        <input type="hidden" name="parent1" value="{{parent1}}" />
+        <input type="hidden" name="lab" value="{{lab}}" />
+        <input type="hidden" name="institute" value="{{institute}}" />
+        <input type="hidden" name="address" value="{{address}}" />
+        <!-- <input type="submit" name="for_one" value="proof and add to this group?" /> -->
+        <input type="submit" class="btn btn-success btn-xs" name="for_all" value="Proof `{{entry|truncatechars:15}}`?" />
+    </form>
+{% elif entry|length > 0 and not request.user|has_group:"Proof" %}
+<font color="red">(New!)</font>
+{% endif %}

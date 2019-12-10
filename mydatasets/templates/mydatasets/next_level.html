@@ -1,0 +1,17 @@
+
+{% if multi_select %}
+    <!-- <option  value="">Not in the list?</option>
+    <option disabled value=None>--------------------</option> -->
+    <option value="" disabled>Please select...</option>
+    <!-- <option value="">Not in the list?</option> -->
+    <option  disabled value=None>--------------------</option>
+{% else %}
+    <option value=None disabled selected>Please select...</option>
+    <option value="">Not available in the list?</option>
+    <option value="">--------------------</option>
+{% endif %}
+
+<!-- defualt for all -->
+{% for opt in next_level %}
+<option value= "{{ opt.pk }}"> {{ opt }} </option>
+{% endfor %}

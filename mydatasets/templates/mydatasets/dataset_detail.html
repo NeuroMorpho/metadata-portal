@@ -1,0 +1,417 @@
+{% extends "mydatasets/base.html" %}
+{% load app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -25px" class="navbar-brand active" href="#">
+  <sub> <span class="glyphicon glyphicon-triangle-right"></span>{{ dataset.archive_name }}</sub>
+</a>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="well well-sm">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- first part -->
+      <div class="col-sm-11">
+        <h4>
+          Archive: <strong>{{ dataset.archive_name }}</strong>
+          {% if dataset.set_archive  %}
+          <span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+          {% endif %}
+          {% if dataset.review  %}
+          <span class="label label-info">ready to review</span>
+          {% endif %}
+          {% if dataset.public  %}
+          <span class="label label-warning">public</span>
+          {% endif %}
+        </h4>
+        <h5>
+          NMO-version: <span class="badge badge-pill badge-primary">{{dataset.nmo_version}}</span>
+        </h5>
+        <h5>
+          PMID: <strong>{{ dataset.identifier }}</strong>
+        </h5>
+        <h5>
+          Author(s): <strong> {{ dataset.authors }} </strong>
+        </h5>
+        <h5>
+          Url: <a href="{{ dataset.url }}" target="_blank">{{ dataset.url|urlize }}</a>
+        </h5>
+        {% if dataset.grant_id %}
+        <p>
+          <span class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></span>
+          <i class="more"> {{dataset.grant_id}} </i> </p>
+        {%endif%}
+        {% if dataset.notes %}
+        <p> <span>&#8211;</span> <i> {{dataset.notes}} </i> </p>
+        {%endif%}
+      </div>
+
+      <!-- second part  -->
+      <div class="col-sm-1">
+        <div class="btn-group-vertical">
+          {% if user.is_superuser %}
+          <a title="advanced/regular view" class="btn btn-success btn"
+            href="{% url 'mydatasets:dataset_detail_advanced' dataset.id %}"> <span
+              class="glyphicon glyphicon-bullhorn"></span></a>
+          <a title="public/unpublic" class="btn btn-primary btn"
+            href="{% url 'mydatasets:dataset_public_status' dataset.id %}"> <span
+              class="glyphicon glyphicon-eye-{% if dataset.public%}close{%else%}open{%endif%}"></span></a>
+          <a title="download CSV file" class="btn btn-success btn"
+            href="{% url 'mydatasets:generate_csv' dataset.id %}"> <span
+              class="glyphicon glyphicon-download-alt"></span></a>
+          <a class="btn btn-primary btn" title="make (archive/unarchive)"
+            href="{% url 'mydatasets:dataset_archive_status' dataset.id %}" onclick="return ConfirmArchive()"> <span
+              class="glyphicon glyphicon-ok"></span></a>
+          <a title="change satus (ongoing/ready)" class="btn btn-success btn"
+            href="{% url 'mydatasets:dataset_status' dataset.id %}"> <span
+              class="glyphicon glyphicon-{% if dataset.review%}star{%else%}star-empty{%endif%}"></span></a>
+          {% endif %}
+          {% if user == dataset.user or user.is_superuser %}
+          <a title="edit dataset" class="btn btn-primary btn" href="{% url 'mydatasets:edit_dataset' dataset.id %}">
+            <span class="glyphicon glyphicon-edit"></span></a>
+          <a title="delete dataset" class="btn btn-danger btn" href="{% url 'mydatasets:delete_dataset' dataset.id %}"
+            onclick="return ConfirmDelete()"> <span class="glyphicon glyphicon-trash"> </span></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- upload forms -->
+    {% if user.is_superuser %}
+    <!-- files -->
+    <div class="row">
+      <div class="col-sm-6">
+        <!-- pdf -->
+        {% if dataset.pdf %}
+        <p>PDF: <a target="_blank" href="{{ dataset.pdf.url|correct_media }}">pdf-file</a></p>
+        {%else%}
+        <p>PDF is not attached</p>
+        {% endif %}
+      </div>
+      <div class="col-sm-6">
+        {% if dataset.excel %}
+        <p>Metadata: <a target="_blank" href="{{ dataset.excel.url|correct_media }}">excel-file</a></p>
+        {%else%}
+        <p>Metadata is not attached</p>
+        {% endif %}
+      </div>
+    </div>
+    <!-- upload -->
+    <div class="row">
+      <div class="col-sm-6">
+        <form class="form-inline" method="post" enctype="multipart/form-data"
+          action="{% url 'mydatasets:upload' dataset.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="filetype" value="pdf" />
+          <input type="file" name="pdf">
+          <button type="submit">Upload-pdf</button>
+        </form>
+      </div>
+      <div class="col-sm-6">
+        <form class="form-inline" method="post" enctype="multipart/form-data"
+          action="{% url 'mydatasets:upload' dataset.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="filetype" value="excel" />
+          <input type="file" name="excel">
+          <button type="submit">Upload-excel</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-sm-10">
+        <hr style=" height: 1px; background-color:dimgray; margin-bottom:0px !important;" />
+        <small>
+          added by <b>{{ dataset.user|title }}</b> {{ dataset.date|timesince }} ago!
+        </small>
+      </div>
+    </div>
+
+  </div>
+</div> <!-- well -->
+
+<!-- reconstructions -->
+<div class="well well-sm">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-8">
+        {% if dataset.reconstructions %}
+        <h4>
+          <span class="glyphicon glyphicon-paperclip"></span>
+          Groups:
+          <small>[
+            <a target="_blank" href="{{ dataset.reconstructions.url|correct_media }}">Download <span
+                class="glyphicon glyphicon-download-alt"></span></a>,
+            {% if user == dataset.user or user.is_superuser %}
+            {% if dataset.ext %}
+            <a href="{% url 'mydatasets:make_groups' dataset.id %}">Make Groups <span
+                class="glyphicon glyphicon-wrench"></span></a>,
+            {% endif %}
+            <a href="{% url 'mydatasets:reconstruction_delete' dataset.id %}" onclick="return ConfirmDelete()">Remove
+              <span class="glyphicon glyphicon-trash"></span></a>
+            {% endif %}
+            ]
+          </small>
+        </h4>
+
+        <!-- <p>
+          <span class="glyphicon glyphicon-paperclip"></span>
+          <a target="_blank" href="{{ dataset.reconstructions.url|correct_media }}">Groupings</a>
+        </p> -->
+
+        {% if dataset.ext %}
+        <div class="panel-group">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#collapse1">click here to see groups</a>
+              </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+              <ul class="list-inline">
+                {%for folder in folders%}
+                <li>
+                  <span class="glyphicon glyphicon-list-alt"></span></a>
+                  {{folder.0}} ({{folder.1}} {{dataset.ext}}-files)
+                </li>
+                {%endfor%}
+              </ul>
+            </div>
+          </div>
+        </div> 
+        <!-- <ul class="list-inline">
+          {%for folder in folders%}
+          <li>
+            <span class="glyphicon glyphicon-list-alt"></span></a>
+            {{folder.0}} ({{folder.1}} {{dataset.ext}}-files)
+          </li>
+          {%endfor%}
+        </ul> -->
+        {% endif %}
+
+        {%else%}
+        <p style="margin-bottom:0px">
+          <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+          Neural reconstruction files (groups) are not available yet!
+        </p>
+        <!-- <small>- Please upload a single compresed(.zip) file which contains grouping of your reconstructions!</small> -->
+        <p style="text-indent:2%; text-align: justify;">
+        <small>
+          - If you have distinct experimental conditions (e.g. anatomical location, control vs treatment, animal sex/age
+          etc)
+          it’d be most helpful if you separate each group of cells in different folder and zip them all toghether.
+          There is an example in the <a href="http://cng-nmo-meta.orc.gmu.edu/mydatasets/datasets/192/">sample
+            dataset</a> for you to follow.
+        </small>
+        </p>
+        <p style="text-indent:2%; text-align: justify;">
+        <small>
+          - If your file size is huge (more than 1GB) please use our <a href="https://cngfile.orc.gmu.edu/nextcloud/index.php/s/QCJzbKHr7SK2jaB">FileDrop system</a> to upload your files.
+        </small>
+        </p>
+        {% endif %}
+      </div>
+
+      <div class="col-sm-4">
+        {% if user == dataset.user or user.is_superuser %}
+        <form class="form-inline" method="post" enctype="multipart/form-data"
+          action="{% url 'mydatasets:upload' dataset.id %}">
+          {% csrf_token %}
+
+          <!-- <span class="control-fileupload">
+            <input type="file" id="file">
+          </span> -->
+
+          <label for="file">Choose a file :</label>
+          <input type="hidden" name="filetype" value="reconstructions" />
+          <input type="file" name="reconstructions">
+          <button type="submit">Upload!</button>
+        </form>
+        {%endif%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- list group of neurons -->
+<hr style="height: 1px; background-color:dimgray; !important;" />
+
+<h3 id="groups">Neuron Groups:
+  {% if user == dataset.user or user.is_superuser %}
+  (
+  <a href="{% url 'mydatasets:neuron_create' dataset.id %}">New <span class="glyphicon glyphicon-pencil"></span></a>,
+  <a href="{% url 'mydatasets:neuron_groups_delete' dataset.id %}" onclick="return ConfirmDelete()">Remove <span
+      class="glyphicon glyphicon-trash"></span></a>
+  ) <small>[{{neurons|length}} group(s), {{neurons|cell_count}} cells]</small>
+  {% else %}
+  <small>({{neurons|length}}total, please login if you have a user!)</small>
+  <!-- (<a  href="{% url 'mydatasets:neuron_create2' dataset.id %}">add a group <span class="glyphicon glyphicon-pencil"></span></a>) -->
+  {% endif %}
+</h3>
+
+<!-- list group of recently edited neurons -->
+<h5> Recently edited:
+  {%spaceless%}
+  {%for neuron in edited_neuron%}
+  <a href="{% url 'mydatasets:neuron_detail' dataset.id neuron.id %}">{{neuron.group_name|truncatechars:25}}</a>
+  {%if not forloop.last%},{%endif%}
+  {%empty%}
+  Empty
+  {%endfor%}
+  {%endspaceless%}
+</h5>
+
+<!-- other pages on top -->
+{% if neurons.has_other_pages %}
+<div class="text-center">
+  <ul class="pagination">
+    {% if neurons.has_previous %}
+    <li><a href="?page={{ post.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+    <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in neurons.paginator.page_range %}
+    {% if neurons.number == i %}
+    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+    {% else %}
+    <li><a href="?page={{ i }}">{{ i }}</a></li>
+    {% endif %}
+    {% endfor %}
+    {% if neurons.has_next %}
+    <li><a href="?page={{ neurons.next_page_number }}">&raquo;</a></li>
+    {% else %}
+    <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{%for neuron in neurons%}
+<div class="well well-sm" style="">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <!-- group name and info -->
+        <a href="{% url 'mydatasets:neuron_detail' dataset.id neuron.id %}" title="{{neuron.group_name|title}}">
+          <strong>{{neuron.group_name|truncatechars:40}}</strong> </a> group with <b>{{neuron.number_of_data_files}}</b> cell(s)
+      </div>
+      <!-- labels -->
+      <div class="col-sm-3">
+        {% if neuron|check_new_values %}
+        <span class="label label-primary">New-terms</span>
+        {% endif %}
+        {% if neuron.lab_name is not None and neuron.lab is None %}
+        <span class="label label-danger">New-lab</span>
+        {% elif neuron.lab_name is not None and neuron.lab is not None %}
+        <span class="label label-danger">Lab</span>
+        {% endif %}
+      </div>
+      <!-- control buttons -->
+      <div class="col-sm-3">
+        <div class="btn-toolbar">
+          {% if user == dataset.user or user.is_superuser %}
+          <a title="delete group" class="btn btn-danger btn-sm pull-right a-btn-slide-text"
+            href="{% url 'mydatasets:neuron_delete' neuron.dataset.id neuron.id %}#groups"
+            onclick="return ConfirmDelete()">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+          </a>
+          <a title="duplicate group" class="btn btn-success btn-sm pull-right"
+            href="{% url 'mydatasets:neuron_duplicate' neuron.dataset.id neuron.id %}#groups">
+            <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
+          </a>
+          <a title="open group" class="btn btn-primary btn-sm pull-right"
+            href="{% url 'mydatasets:neuron_detail' neuron.dataset.id neuron.id %}">
+            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+          </a>
+          {%else%}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{%empty%}
+<p> No Neuron is available in this dataset yet! </p>
+{%endfor%}
+
+
+<!-- other pages on bottom -->
+{% if neurons.has_other_pages %}
+<div class="text-center">
+  <ul class="pagination">
+    {% if neurons.has_previous %}
+    <li><a href="?page={{ post.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+    <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in neurons.paginator.page_range %}
+    {% if neurons.number == i %}
+    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+    {% else %}
+    <li><a href="?page={{ i }}">{{ i }}</a></li>
+    {% endif %}
+    {% endfor %}
+    {% if neurons.has_next %}
+    <li><a href="?page={{ neurons.next_page_number }}">&raquo;</a></li>
+    {% else %}
+    <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+<hr>
+
+<h4>
+  <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+  Reviews:
+</h4>
+{% for review in dataset.datasetreview_set.all %}
+<div class="panel panel-default" id="reviews">
+  <div class="panel-heading">
+    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+    On <strong>{{review.date}}</strong>,
+    <strong>{{review.user|title }}</strong> says:
+    {% if user == dataset.user or user.is_superuser %}
+    <a href="{% url 'mydatasets:delete_review' dataset.id review.id %}#reviews">
+      <span class=" pull-right glyphicon glyphicon-trash">
+      </span>
+    </a>
+    {%endif%}
+  </div>
+  <div class="panel-body" style="text-indent: 2.5em;">
+    <p>
+      {{review.comment}}
+    </p>
+  </div>
+</div>
+{% empty %}
+<div style="text-indent: 2.5em;" id="reviews">
+  <p>
+    No reviews yet!
+  </p>
+</div>
+{% endfor %}
+
+{% if user == dataset.user or user.is_superuser %}
+<form action="{% url 'mydatasets:create_review' dataset.id %}#reviews" method="post">
+  {% csrf_token %}
+  <label class="form" for="comment">Comment:</label>
+  <textarea class="form-control" name="comment" id="comment" rows="3"></textarea>
+  <input class="btn btn-primary pull-right" type="submit" value="Post!" />
+</form>
+{% endif %}
+
+
+{% endblock %}
+
+{% block footer %}
+
+Created by {{ dataset.user }} on {{ dataset.date }}
+
+{% endblock %}

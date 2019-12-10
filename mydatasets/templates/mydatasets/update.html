@@ -1,0 +1,283 @@
+{% extends "mydatasets/base.html" %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span> Manage
+</a>
+{% endblock %}
+
+{% block content %}
+
+<br>
+
+<h3>
+		<span class="glyphicon glyphicon-list"></span> Management
+	</h3>
+	
+	<div class="well well">
+		<div class="btn-toolbar">
+			<div class="row">
+				<div class="col-sm-6">
+				<h4>
+				<span class="glyphicon glyphicon-cog"></span>
+					Manage terms in the database
+				</h4>
+				<p>{{msg}}</p>
+			</div>
+			<div class="col-sm-6">          
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<table class="table table-striped table-hover">
+	
+	<tr>
+		<th>species</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="Species" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="Species" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>strains:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="Strain" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="Strain" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>brain region1:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="BrainRegion1" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="BrainRegion1" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>brain region2:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="BrainRegion2" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="BrainRegion2" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>brain region3:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="BrainRegion3" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="BrainRegion3" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>cell type1:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="CellType1" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="CellType1" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>cell type2:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="CellType2" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="CellType2" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>cell type3:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="CellType3" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="CellType3" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>stains:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="StainMethod" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="StainMethod" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>slicing directions:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="SlicingDirection" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="SlicingDirection" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>reconstruction softwares:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ReconstructionSoftware" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ReconstructionSoftware" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>protocols:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ProtocolDesign" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ProtocolDesign" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>original formats:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="OriginalFormat" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="OriginalFormat" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>objective types:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ObjectiveType" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ObjectiveType" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+
+	<tr>
+		<th>experiment conditions:</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ExperimentCondition" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Clean!" />
+			</form>
+		</th>
+		<th>
+			<form type="get" action="{% url 'mydatasets:manage' %}">
+				<input type="hidden" name="table"  value="ExperimentCondition" />
+				<input type="submit" class="btn btn-primary btn-small" name="action" value="Update!" />
+			</form>
+		</th>
+	</tr>
+	
+	</table>
+	
+
+{% endblock %}
+
+{% block footer %}
+    Created by {{ neuron.user }} on {{ neuron.date }}
+{% endblock %}

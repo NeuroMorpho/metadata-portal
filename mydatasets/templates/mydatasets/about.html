@@ -1,0 +1,77 @@
+{% extends "mydatasets/base.html" %} 
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>About
+</a>
+{% endblock %}
+
+{% block content %}
+
+<h3>
+  <span>
+    <i class="glyphicon glyphicon-exclamation-sign"></i>
+  </span>
+  About
+</h3>
+
+
+<div class="well well">
+  <h2 class="display-3">NeuroMorpho.Org Metadata Portal</h2>
+  <p class="lead" align="justify">
+      In order to maximize impact and discovery in research, shared data should be annotated with appropriate 
+      metadata (information that provides supplementary knowledge about the associated datasets). This online
+      metadata portal for NeuroMorpho.Org relies on state-of-the-art web technologies and is designed to incorporate 
+      novel machine learning algorithms for promoting and facilitating the systematic acquisition of descriptive information 
+      for neuronal reconstructions. This project is fully open-source and the development may also be extended to other research 
+      projects that require knowledge management.
+    <!-- This portal is a smart meta-data acquisition portal to facilitate data management process in NeuroMorpho.Org.  -->
+  </p>
+</div>
+  
+<hr>
+
+<ul class="list-unstyled">
+  {% for version in versions %}
+  <li class="well well-sm">
+      <h3>
+        {{version.title}}
+      </h4>
+      <ul>
+        {% for line in version.features_as_list%}
+        <li>{{line|safe}}</li>
+        {% endfor %}
+      </ul>
+  </li>
+  {% empty %}
+  <li>No versions yet!</li>
+  {% endfor %}
+</ul>
+
+{% if versions.has_other_pages %}
+<div class="text-center">
+  <ul class="pagination">
+    {% if versions.has_previous %}
+      <li><a href="?page={{ post.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in versions.paginator.page_range %}
+      {% if versions.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if versions.has_next %}
+      <li><a href="?page={{ versions.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+
+
+{% endblock %}

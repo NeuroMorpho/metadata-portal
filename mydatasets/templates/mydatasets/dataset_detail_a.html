@@ -1,0 +1,275 @@
+{% extends "mydatasets/base.html" %}
+{% load app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -25px" class="navbar-brand active" href="#">
+  <sub> <span class="glyphicon glyphicon-triangle-right"></span>{{ dataset.archive_name }}</sub>
+</a>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="well well-sm">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- first part -->
+      <div class="col-sm-8">
+        <h4>
+          Archive: <strong>{{ dataset.archive_name }}</strong>
+          <span class="badge badge-pill badge-primary">{{dataset.nmo_version}}</span>
+          {% if dataset.set_archive  %}
+          <span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+          {% endif %}
+          {% if dataset.review  %}
+          <span class="label label-info">ready to review</span>
+          {% endif %}
+          {% if dataset.public  %}
+          <span class="label label-warning">public</span>
+          {% endif %}
+        </h4>
+      </div>
+
+      <!-- second part  -->
+      <div class="col-sm-4">
+        <div class="btn-group">
+          {% if user.is_superuser %}
+          <a title="advanced/regular view" class="btn btn-success btn"
+            href="{% url 'mydatasets:dataset_detail' dataset.id %}"> <span
+              class="glyphicon glyphicon-bullhorn"></span></a>
+          <a title="public/unpublic" class="btn btn-primary btn"
+            href="{% url 'mydatasets:dataset_public_status' dataset.id %}"> <span
+              class="glyphicon glyphicon-eye-{% if dataset.public%}close{%else%}open{%endif%}"></span></a>
+          <a title="download CSV file" class="btn btn-success btn"
+            href="{% url 'mydatasets:generate_csv' dataset.id %}"> <span
+              class="glyphicon glyphicon-download-alt"></span></a>
+          <a class="btn btn-primary btn" title="make (archive/unarchive)"
+            href="{% url 'mydatasets:dataset_archive_status' dataset.id %}" onclick="return ConfirmArchive()"> <span
+              class="glyphicon glyphicon-ok"></span></a>
+          <a title="change satus (ongoing/ready)" class="btn btn-success btn"
+            href="{% url 'mydatasets:dataset_status' dataset.id %}"> <span
+              class="glyphicon glyphicon-{% if dataset.review%}star{%else%}star-empty{%endif%}"></span></a>
+          {% endif %}
+          {% if user == dataset.user or user.is_superuser %}
+          <a title="edit dataset" class="btn btn-primary btn" href="{% url 'mydatasets:edit_dataset' dataset.id %}">
+            <span class="glyphicon glyphicon-edit"></span></a>
+          <a title="delete dataset" class="btn btn-danger btn" href="{% url 'mydatasets:delete_dataset' dataset.id %}"
+            onclick="return ConfirmDelete()"> <span class="glyphicon glyphicon-trash"> </span></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- upload forms -->
+    {% if user.is_superuser %}
+    <!-- files -->
+    <div class="row">
+      <div class="col-sm-4">
+        <!-- pdf -->
+        {% if dataset.pdf %}
+        <p>PDF: <a target="_blank" href="{{ dataset.pdf.url|correct_media }}">pdf-file</a></p>
+        {%else%}
+        <p>PDF is not attached!</p>
+        {% endif %}
+      </div>
+      <div class="col-sm-4">
+        {% if dataset.excel %}
+        <p>Metadata: <a target="_blank" href="{{ dataset.excel.url|correct_media }}">excel-file</a></p>
+        {%else%}
+        <p>Metadata is not attached!</p>
+        {% endif %}
+      </div>
+      <div class="col-sm-4">
+        {% if dataset.reconstructions %}
+        <p>Reconstruction: <a target="_blank" href="{{ dataset.reconstructions.url|correct_media }}">reconstruction-file</a></p>
+        {%else%}
+        <p>reconstruction file is not attached!</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-sm-10">
+        <hr style=" height: 1px; background-color:dimgray; margin-bottom:0px !important;" />
+        <small>
+          added by <b>{{ dataset.user|title }}</b> {{ dataset.date|timesince }} ago!
+        </small>
+      </div>
+    </div>
+
+  </div>
+</div> <!-- well -->
+
+<!-- reconstructions -->
+<!-- list group of neurons -->
+<!-- <hr style="height: 1px; background-color:dimgray; !important;" /> -->
+{%comment%}
+<h5 id="groups">Neuron Groups:
+  {% if user == dataset.user or user.is_superuser %}
+  (
+  <!-- <a href="{% url 'mydatasets:neuron_create' dataset.id %}">New <span class="glyphicon glyphicon-pencil"></span></a>, -->
+  <a href="{% url 'mydatasets:neuron_groups_delete' dataset.id %}" onclick="return ConfirmDelete()">Remove all <span
+      class="glyphicon glyphicon-trash"></span></a>
+  )
+  {% else %}
+  <small>({{neurons|length}}total, please login if you have a user!)</small>
+  <!-- (<a  href="{% url 'mydatasets:neuron_create2' dataset.id %}">add a group <span class="glyphicon glyphicon-pencil"></span></a>) -->
+  {% endif %}
+</h5>
+{%endcomment%}
+
+<hr>
+<h4><span class="glyphicon">&#128269;</span> New terms at a glance:</h4>
+<small>Please check rows/columns that you want to be effected in the modifications.</small>
+<form method="POST" class="form-horizontal" action="{% url 'mydatasets:bulk_modify' dataset.id %}">
+  
+<!-- <div id="dataset_tables"></div> -->
+<!-- <table class="table fixed_header table-bordered table-hover table-striped"> -->
+<!-- <table class="table table-fixed table-striped" id="newterms" name="newterms"> -->
+<table class="table table-hover table-striped" cellspacing="0" id="newterms" name="newterms">
+  <thead>
+    <tr>
+      <th title="Group">Gp. <input name="col_checks[]" value="gp" type="checkbox" checked></th>
+      <th title="Species">Sp. <input name="col_checks[]" value="sp" type="checkbox" checked></th>
+      <th title="Strain">Sr. <input name="col_checks[]" value="st" type="checkbox" checked></th>
+      <th title="Developmental stage">Ds. <input name="col_checks[]" value="ds" type="checkbox" checked></th>
+      <th title="Age(min/max)" style="width: 60px;">Ag. <input name="col_checks[]" value="ag" type="checkbox"></th>
+      <th title="Weigth(min/max)" style="width: 60px;">Wt. <input name="col_checks[]" value="wt" type="checkbox"></th>
+      <th title="Brain Region1">B1 <input name="col_checks[]" value="b1" type="checkbox" checked></th>
+      <th title="Brain Region2">B2 <input name="col_checks[]" value="b2" type="checkbox" checked></th>
+      <th title="Brain Region3">B3 <input name="col_checks[]" value="b3" type="checkbox" checked></th>
+      <th title="Celltype1">C1 <input name="col_checks[]" value="c1" type="checkbox" checked></th>
+      <th title="Celltype2">C2 <input name="col_checks[]" value="c2" type="checkbox" checked></th>
+      <th title="Celltype3">C3 <input name="col_checks[]" value="c3" type="checkbox" checked></th>
+      <th title="Experimental Protocol">EP <input name="col_checks[]" value="ep" type="checkbox" checked></th>
+      <th title="Experimental Condition">EC <input name="col_checks[]" value="ec" type="checkbox" checked></th>
+      <th title="Stain">St. <input name="col_checks[]" value="str" type="checkbox" checked></th>
+      <th title="Slice Thickness">ST <input name="col_checks[]" value="sth" type="checkbox" checked></th>
+      <th title="Slicing Direction">SD <input name="col_checks[]" value="sd" type="checkbox" checked></th>
+      <th title="Reconstruction Software">RS <input name="col_checks[]" value="rc" type="checkbox" checked></th>
+      <th title="Objective Type">OT <input name="col_checks[]" value="ot" type="checkbox" checked></th>
+      <th title="Objective Magnification">OM <input name="col_checks[]" value="om" type="checkbox" checked></th>
+      <th title="Data Type">DT <input name="col_checks[]" value="dt" type="checkbox" checked></th>
+      <th title="Contributor Info">CI <input name="col_checks[]" value="ci" type="checkbox" checked></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for neuron in neurons %}
+    <tr>
+      <td>
+        <input name="checks[]" value="{{neuron.id}}" type="checkbox" checked>
+        <a href="{% url 'mydatasets:neuron_detail' neuron.dataset_id neuron.id %}" title="{{neuron.group_name}}"><span style="display:none">"{{neuron.group_name}}"</span>{{neuron.group_name}}</a>
+      </td>
+      <td title="{{neuron.new_species|default_if_none:""}}">{{neuron.new_species|default_if_none:""}}</td>
+      <td title="{{neuron.new_strain|default_if_none:""}}">{{neuron.new_strain|default_if_none:""}}</td>
+      <td title="{{neuron.new_development_stage|default_if_none:""}}">{{neuron.new_development_stage|default_if_none:""}}</td>
+      <td title="{{neuron.min_age}}/{{neuron.max_age}}" style="width: 60px;">{{neuron.min_age|my_default_if_none:""}}{{neuron.max_age}}</td>
+      <td title="{{neuron.min_weight}}/{{neuron.max_weight}}" style="width: 60px;">{{neuron.min_weight|my_default_if_none:""}}{{neuron.max_weight}}</td>
+      <td title="{{neuron.new_brain_region1|default_if_none:""}}">{{neuron.new_brain_region1|default_if_none:""}}</td>
+      <td title="{{neuron.brain_region1|default_if_none:""}}>{{neuron.new_brain_region2|default_if_none:""}}">{{neuron.new_brain_region2|default_if_none:""}}</td>
+      <td title="{{neuron.brain_region1|default_if_none:""}}>{{neuron.brain_region2|default_if_none:""}}>{{neuron.new_brain_region3|default_if_none:""}}">{{neuron.new_brain_region3|default_if_none:""}}</td>
+      <td title="{{neuron.new_cell_type1|default_if_none:""}}">{{neuron.new_cell_type1|default_if_none:""}}</td>
+      <td title="{{neuron.cell_type1|default_if_none:""}}>{{neuron.new_cell_type2}}">{{neuron.new_cell_type2|default_if_none:""}}</td>
+      <td title="{{neuron.cell_type1|default_if_none:""}}>{{neuron.cell_type2|default_if_none:""}}>{{neuron.new_cell_type3|default_if_none:""}}">{{neuron.new_cell_type3|default_if_none:""}}</td>
+      <td title="{{neuron.new_experimental_protocol|default_if_none:""}}">{{neuron.new_experimental_protocol|default_if_none:""}}</td>
+      <td title="{{neuron.new_experimental_condition|default_if_none:""}}">{{neuron.new_experimental_condition|default_if_none:""}}</td>
+      <td title="{{neuron.new_stain|default_if_none:""}}">{{neuron.new_stain|default_if_none:""}}</td>
+      <td title="{{neuron.new_slice_tickness|default_if_none:""}}">{{neuron.new_slice_tickness|default_if_none:""}}</td>
+      <td title="{{neuron.new_slicing_direction|default_if_none:""}}">{{neuron.new_slicing_direction|default_if_none:""}}</td>
+      <td title="{{neuron.new_reconstruction_software|default_if_none:""}}">{{neuron.new_reconstruction_software|default_if_none:""}}</td>
+      <td title="{{neuron.new_objective_type|default_if_none:""}}">{{neuron.new_objective_type|default_if_none:""}}</td>
+      <td title="{{neuron.new_objective_magnification|default_if_none:""}}">{{neuron.new_objective_magnification|default_if_none:""}}</td>
+      <td title="{{neuron.new_data_type|default_if_none:""}}">{{neuron.new_data_type|default_if_none:""}}</td>
+      <td title="{{neuron.lab_name|default_if_none:""}}/{{neuron.institute|default_if_none:""}}/{{neuron.address|default_if_none:""}}">{{neuron.lab_name|my_default_if_none:""}}{{neuron.institute|my_default_if_none:""}}{{neuron.address|default_if_none:""}}</td>
+    </tr>
+    {%endfor%}
+  </tbody>
+</table>
+
+<hr>
+<div class="row">
+  <div class="col-sm-6">
+    <h4><span class="glyphicon glyphicon-ok"></span> Proof new terms</h4>
+    <a href="{% url 'mydatasets:bulk_proof' dataset.id %}" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" onclick="return Confirm()">Bulk Proof</a>
+    <small>If you are satisfied with all the new terms in the above table you can proof them all!</small>
+  </div>
+  <div class="col-sm-6">
+    <h4><span class="glyphicon glyphicon-pencil"></span> Bulk Modify</h4>
+
+    <!-- <form method="POST" class="form-horizontal" action="{% url 'mydatasets:bulk_modify' dataset.id %}"> -->
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="text">Find:</label>
+        <div class="col-sm-10">
+          <input name = "find" type="text" class="form-control" id="find_id" placeholder="Enter the term you want to find and replace" onkeyup="filterTable(this,'newterms')">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="text">Replace:</label>
+        <div class="col-sm-10">
+          <input name="replace" type="text" class="form-control" id="replace_id" placeholder="Enter the term you what to be replaced with the term above">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-4">
+          <div class="checkbox">
+            <label><input name="case_sensitive" id="case_sensitive_id" type="checkbox" checked>Case sensitive</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-10 col-sm-2">
+          <!-- <button type="submit" class="btn btn-default">Submit</button> -->
+          <button type="submit" class="btn btn-primary btn-block">Do!</button>
+        </div>
+      </div>
+    <!-- </form> -->
+
+  </div>
+</div>
+
+</form>
+
+<!-- reviews -->
+<hr>
+<h4>
+  <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+  Reviews:
+</h4>
+{% for review in dataset.datasetreview_set.all %}
+<div class="panel panel-default" id="reviews">
+  <div class="panel-heading">
+    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+    On <strong>{{review.date}}</strong>,
+    <strong>{{review.user|title }}</strong> says:
+    {% if user == dataset.user or user.is_superuser %}
+    <a href="{% url 'mydatasets:delete_review' dataset.id review.id %}#reviews">
+      <span class=" pull-right glyphicon glyphicon-trash">
+      </span>
+    </a>
+    {%endif%}
+  </div>
+  <div class="panel-body" style="text-indent: 2.5em;">
+    <p>
+      {{review.comment}}
+    </p>
+  </div>
+</div>
+{% empty %}
+<div style="text-indent: 2.5em;" id="reviews">
+  <p>
+    No reviews yet!
+  </p>
+</div>
+{% endfor %}
+
+
+{% endblock %}
+
+{% block footer %}
+
+Created by {{ dataset.user }} on {{ dataset.date }}
+
+{% endblock %}

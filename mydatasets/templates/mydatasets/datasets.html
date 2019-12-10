@@ -1,0 +1,133 @@
+<hr>
+
+{% comment %}
+<ul class="list-unstyled">
+  {% for dataset in datasets %}
+  <li class="well well-sm">
+    <div class="row">
+      <div class="col-sm-10">
+          <a href="{% url 'mydatasets:dataset_detail' dataset.id %}">
+            <h4>
+              Archive: {{ dataset.archive_name }} 
+              <span class="badge badge-pill badge-primary">{{dataset.nmo_version}}</span>
+              {% if dataset.review  %}
+                [ready to review]
+              {% endif %}
+            </h4>
+          </a>
+      
+          <b>Article ID:</b> {{ dataset.identifier }}
+      
+          <br>
+          <b>Article url:</b> <a href="{{ dataset.url }}">{{ dataset.url }}</a>
+      
+          <br>
+          <b>Author(s):</b> {{ dataset.authors }}
+      
+          <br>
+          ----
+          <br>
+          added by <b>{{ dataset.user|title }}</b> {{ dataset.date|timesince }} ago!
+          
+      </div>
+      <div class="col-sm-2">
+        <div class="btn-group-vertical">
+          {% if user.is_superuser %}
+          <a class="btn btn-info btn-sm" href="{% url 'mydatasets:dataset_duplicate' dataset.id %}"> <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Duplicate </a> 
+          <a class="btn btn-success btn-sm" href="{% url 'mydatasets:generate_csv' dataset.id %}"> <span class="glyphicon glyphicon-save"></span> Get CSV </a>    
+          <a class="btn btn-primary btn-sm" href="{% url 'mydatasets:dataset_archive_status' dataset.id %}" onclick="return ConfirmArchive()"> <span class="glyphicon glyphicon-folder-close"></span> Archive </a>    
+          <a class="btn btn-danger btn-sm" href="{% url 'mydatasets:delete_dataset' dataset.id %}" onclick="return ConfirmDelete()"> <span class="glyphicon glyphicon-remove"></span> Delete </a>    
+          {% elif user == dataset.user %}
+          <a class="btn btn-danger btn-sm" href="{% url 'mydatasets:delete_dataset' dataset.id %}" onclick="return ConfirmDelete()"> <span class="glyphicon glyphicon-remove"></span> Delete </a>    
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if not dataset.user.is_superuser %}
+    <div class="row">
+      <div class="col-sm-5">
+      </div>
+      <div class="col-sm-2">
+        <span class = "label label-info">Author's entry (public)</span>
+      </div>
+      <div class="col-sm-5">
+      </div>
+    </div>
+    {%endif%}
+
+  </li>
+  {% empty %}
+  {% if archive %}
+    <li>No Arvhives!</li>
+  {% else %}
+    <li>No datasets is inserted yet!</li>
+  {% endif %}
+  {% endfor %}
+</ul>
+
+
+{% if datasets.has_other_pages %}
+<div class="text-center">
+  <ul class="pagination">
+    {% if datasets.has_previous %}
+      <li><a href="?page={{ post.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in datasets.paginator.page_range %}
+      {% if datasets.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if datasets.has_next %}
+      <li><a href="?page={{ datasets.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% endcomment %}
+
+<div id="dataset_tables"></div>
+<table class="table table-bordered table-hover table-striped" cellspacing="0" width="100%" id="datasets">
+  <thead>
+    <tr>
+      <td>ID</td>
+      <td>Dataset</td>
+      <td>Author</td>
+      <td class="col-xs-1 text-center">Version</td>
+      <td>Status</td>
+      <td class="col-xs-1 text-center">Created</td>
+      <td class="text-center">Management</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for dataset in datasets %}
+    <tr {% if dataset.review %} class="info" {% endif %} >
+      <td>{{dataset.identifier}}</td>
+      <td> <a href="{% url 'mydatasets:dataset_detail' dataset.id %}"> {{dataset.archive_name}} </a> </td>
+      <td>{{dataset.authors|title|truncatechars:15}}</td>
+      <!-- <td>{{dataset.nmo_version}}</td> -->
+      <td class="text-center"><span class="badge badge-pill badge-primary">{{dataset.nmo_version|default:"?"}}</span></td>
+      <td>{{dataset.review|yesno:"Ready!,Ongoing..."}}</td>
+      <td> <span style="display:none">{{dataset.date|date:"Ymd-h:m:s" }}</span> {{dataset.date|date:"d/M/y" }}</td>
+      <!-- buttons -->
+      <td class="text-center">
+        {% if user.is_superuser %}
+          <a class="btn btn-info btn-sm"    title="duplicate dataset" href="{% url 'mydatasets:dataset_duplicate' dataset.id %}#dataset_table"> <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span></a> 
+          <a class="btn btn-success btn-sm" title="download CSV file" href="{% url 'mydatasets:generate_csv' dataset.id %}"> <span class="glyphicon glyphicon-download-alt"></span></a>    
+          <a class="btn btn-primary btn-sm" title="make (archive/unarchive)" href="{% url 'mydatasets:dataset_archive_status' dataset.id %}#dataset_table" onclick="return ConfirmArchive()"> <span class="glyphicon glyphicon-ok"></span></a>
+          <a class="btn btn-danger btn-sm"  title="delete dataset" href="{% url 'mydatasets:delete_dataset' dataset.id %}#dataset_table" onclick="return ConfirmDelete()"> <span class="glyphicon glyphicon-trash"></span></a>    
+          {% elif user == dataset.user %}
+          <a class="btn btn-danger btn-sm"  title="delete dataset" href="{% url 'mydatasets:delete_dataset' dataset.id %}#dataset_table" onclick="return ConfirmDelete()"> <span class="glyphicon glyphicon-trash"></span></a>    
+        {%endif%}
+      </td>
+    </tr>
+    {%endfor%}
+  </tbody>
+</table>

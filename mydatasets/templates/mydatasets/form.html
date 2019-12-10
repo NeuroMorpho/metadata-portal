@@ -1,0 +1,151 @@
+{% extends "mydatasets/base.html" %}
+{% load app_filters %}
+{% load crispy_forms_tags %}
+
+{% block heading %}
+  {% if dataset %}
+  {% if add %}<h2>Add a Dataset</h2>{% else %}<h2>Edit Dataset</h2>{% endif %}
+  {% endif %}
+
+  {% if neuron %}
+  {% if add %}<h2>Add a Neurons' Group</h2>{% else %}<h2>Edit Neurons' Group</h2>{% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<form method="post" action="">
+  {% csrf_token %}
+
+  {% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- {{ form|crispy  }} -->
+    {% csrf_token %}
+
+    
+    <div class="panel panel-primary">
+        <div class="panel-heading">Dataset details!</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="archive_name">Archive Name</label>
+                        <input name="archive_name" type="text"class="form-control" id="archive_name" aria-describedby="archive_name" {% if  form.archive_name.value %} value="{{form.archive_name.value}}" {%else%} placeholder="archive_name" {%endif%}>
+                        <small id="archive_name" class="form-text text-muted">please enter name of your archive here.</small>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="identifier">PMID (article identifier)</label>
+                        <input name="identifier" type="number" min="0" class="form-control" id="id_identifier" aria-describedby="identifier" {% if  form.identifier.value %} value="{{form.identifier.value}}" {%else%} placeholder="Exp: 12516" {%endif%}>
+                        <small id="identifier" class="form-text text-muted">please enter PMID or an identifier for your publication.</small>
+                    </div>  
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="author">Author(s)</label>
+                        <input type="text" class="form-control" name="authors" id="authors" aria-describedby="authors" {% if  form.authors.value %} value="{{form.authors.value}}" {%else%} placeholder="Author's Name" {%endif%}>
+                        <small id="authors" class="form-text text-muted">Author name (usually corresponding author or the one who shared the reconstructions)</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="grant_id">
+                                Grant ID
+                            </label>
+                            <textarea class="form-control" rows="3" name="grant_id" id="grant_id">{{form.grant_id.value|default_if_none:""}}</textarea>
+                            <small id="nmo_version" class="form-text text-muted">Please specify the grant ID</small>
+                        </div>
+                    </div>
+                </div>
+                {% if request.user|has_group:"Intern" %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="url">URL</label>
+                        <input type="url" class="form-control" name="url" id="url" aria-describedby="url" {% if  form.url.value %} value="{{form.url.value}}" {%else%} placeholder="https://www.ncbi.nlm.nih.gov/pubmed/123456" {%endif%}>
+                        <small id="url" class="form-text text-muted">URL for the publication.</small>
+                    </div>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="grant_id">
+                                Grant ID
+                            </label>
+                            <textarea class="form-control" rows="3" name="grant_id" id="grant_id">{{form.grant_id.value|default_if_none:""}}</textarea>
+                            <small id="nmo_version" class="form-text text-muted">Please specify the grant ID</small>
+                        </div>
+                    </div>
+                </div> -->
+                {%endif%}
+            </div>
+            
+            {% if request.user|has_group:"Admin" %}
+            <hr>
+            <p class="bg-info" align="center">
+                The following fields are for data management purposes! (leave them blank/defult if your not sure what to put it)
+            </p>
+            <div class="form-group">
+                <!-- <div class="row">
+                    <div class="col-sm-12">
+                        <label for="url">URL</label>
+                        <input type="url" class="form-control" name="url" id="url" aria-describedby="url" {% if  form.url.value %} value="{{form.url.value}}" {%else%} placeholder="https://www.ncbi.nlm.nih.gov/pubmed/123456" {%endif%}>
+                        <small id="url" class="form-text text-muted">URL for the publication.</small>
+                    </div>
+                </div> -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="nmo_version">NMO Version</label>
+                        <input type="text" class="form-control" name="nmo_version" id="nmo_version" aria-describedby="nmo_version" {% if  form.nmo_version.value %} value="{{form.nmo_version.value}}" {%else%} placeholder="X.Y (Exp: 7.5)" {%endif%}>
+                        <small id="nmo_version" class="form-text text-muted">this dataset appears in which version of nuromorpho? (enter this field for management purposes)</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="date">Deposition Date</label>
+                        <div class="input-group date" data-date-format="dd.mm.yyyy">
+                            <input  type="text" class="form-control" name="deposition_date" {% if form.deposition_date.value %} value="{{form.deposition_date.value|date:'m/d/Y'}}" {% else %} placeholder="08/21/2017" {%endif%} >
+                            <div class="input-group-addon" >
+                              <span class="glyphicon glyphicon-th"></span>
+                            </div>
+                        </div>
+                        <small id="nmo_version" class="form-text text-muted">please enter deposition date of the reconstruction based on (mm/dd/yyyy) format.</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="comment">
+                                Aditional notes:
+                            </label>
+                            <textarea class="form-control" rows="3" name="notes" id="notes">{{form.notes.value|default_if_none:""}}</textarea>
+                            <small id="nmo_version" class="form-text text-muted">Any aditional notes?</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {%endif%}
+
+        </div>
+    </div>
+
+    <p>If you are done please submit and upload reconstructions and group of neurons!</p>
+    <p><input type="submit" class="btn btn-success btn-lg btn-block" name="submit" value="Submit & create the dataset!"></p>
+    <!-- <p><input type="submit" class="btn btn-info" name="propagate" value="Save & Propagate"></p> -->
+    <!-- <p><input type="submit" class="btn btn-default" value="Submit"></p> -->
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+
+{% if user.is_authenticated %}
+<ul class="nav navbar-nav navbar-right">
+  <li class="dropdown">
+    <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button"
+      aria-expanded="false"><span class="glyphicon glyphicon-user"></span> {{ user.username|title }}<span class="caret"></span></a>
+    <ul class="dropdown-menu" role="menu">
+      <li><a href="{% url 'archive_list' %}">Archive's list</a></li>
+      <li><a href="{% url 'version_new_terms' %}">Term's list</a></li>
+      <li><a href="{% url 'search' %}">Search</a></li>
+      <li><a href="{% url 'labs' %}">Lab's list</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+      <li><a href="{% url 'help' %}">Help</a></li>
+      {% if user.is_superuser %}
+      <li><a href="http://cng-nmo-meta.orc.gmu.edu/admin/">Admin page</a></li>
+      <!-- <li><a href="{% url 'manage' %}">Manage</a></li> -->
+      {%endif%}
+      <li><a href="{% url 'meta_logout' %}">Logout!</a></li>
+    </ul>
+  </li>
+</ul>
+
+{% else %}
+<form class="navbar-form navbar-right" role="form" action="{% url "meta_login" %}"
+    method="post" accept-charset="utf-8">
+  <div class="form-group">
+    <input type="text" placeholder="Username" class="form-control" name="username">
+  </div>
+  <div class="form-group">
+    <input type="password" placeholder="Password" class="form-control" name="password">
+  </div>
+  {% csrf_token %}
+  <button type="submit" class="btn btn-success">Sign in!</button>
+  <a href="{% url 'social:begin' 'google-oauth2' %}" type="button"><button type="button" class="btn btn-info">with Google!</button></a>
+</form>
+<!-- <div class="btn-group">
+  <button type="button" class="btn btn-primary">Apple</button>
+  <button type="button" class="btn btn-primary">Samsung</button>
+  <button type="button" class="btn btn-primary">Sony</button>
+</div>  -->
+
+{% endif %}

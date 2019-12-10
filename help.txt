@@ -1,0 +1,22 @@
+# for installing mysqldb
+sudo apt-get install python-mysqldb # ubuntu
+yum install MySQL-python # cent
+
+# ip tables (config server)
+https://www.linode.com/docs/security/firewalls/introduction-to-firewalld-on-centos/
+
+
+
+
+deploy:
+https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-centos-7
+
+
+
+database dumping:
+https://coderwall.com/p/mvsoyg/django-dumpdata-and-loaddata
+
+
+
+install pgadmin4
+https://linuxhint.com/install-pgadmin4-ubuntu/

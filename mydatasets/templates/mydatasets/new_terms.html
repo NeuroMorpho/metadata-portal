@@ -1,0 +1,353 @@
+{% extends "mydatasets/base.html" %}
+{% load app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>New terms
+</a>
+{% endblock %}
+
+{% block content %}
+
+{%comment%}
+<h2>
+    {{neuron.group_name}}
+    {% if user == neuron.user or user.is_superuser%}
+		(<a href="{% url 'mydatasets:neuron_edit' neuron.dataset.id neuron.id %}"> edit </a>)
+    {% endif %}
+</h2>
+{%endcomment%}
+
+<br>
+
+<h3>
+		<span class="glyphicon glyphicon-list"></span> New Terms
+</h3>
+
+<div class="well well">
+	<div class="btn-toolbar">
+		<div class="row">
+		<div class="col-sm-6">
+			<p>Search for new terms in NMO versions.</p>
+		</div>
+		<div class="col-sm-6">          
+			<form type="get" action="{% url 'mydatasets:version_new_terms' %}">
+			<div class="input-group">
+				<input type="search" class="form-control" id="version" name="version" value="{{version}}" placeholder="Version (Exp: 7.5) "/>
+				<div class="input-group-btn">
+				<button class="btn btn-primary" type="submit">
+					<span class="glyphicon glyphicon-search"></span>
+				</button>
+				</div> <!-- input group btn -->
+			</div> <!-- input group -->
+			</form>
+		</div>
+		</div>
+	</div>
+</div>
+
+
+<table class="table table-striped">
+	
+	<tr>
+		<th>species: ({{new_species|length}})</th>
+		<td>
+			{%for sp in new_species %}
+			{{sp}}
+			[
+				{% for item in data|get_item:sp %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+	</tr>
+
+	<tr>
+		<th>strains: ({{new_strain|length}})</th>
+		<td>
+			{%for n in new_strain %}
+			{{n.level}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+	</tr>
+
+	<tr>
+		<th>brain region1: ({{new_region1|length}})</th>
+		<td>
+			{%for n in new_region1 %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_region1|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>brain region2: ({{new_region2|length}})</th>
+		<td>
+			{%for n in new_region2 %}
+			{{n.level}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_region2|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>brain region3: ({{new_region3|length}})</th>
+		<td>
+			{%for n in new_region3 %}
+			{{n.level}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_region3|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>cell type1: ({{new_class1|length}})</th>
+		<td>
+			{%for n in new_class1 %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_class1|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>cell type2: ({{new_class2|length}})</th>
+		<td>
+			{%for n in new_class2 %}
+			{{n.level}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_class2|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>cell type3: ({{new_class3|length}})</th>
+		<td>
+			{%for n in new_class3 %}
+			{{n.level}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_class3|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>stains: ({{new_stain|length}})</th>
+		<td>
+			{%for n in new_stain %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_stain|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>slicing directions: ({{new_slicing_direction|length}})</th>
+		<td>
+			{%for n in new_slicing_direction %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+	</tr>
+
+	<tr>
+		<th>slicing thickness: ({{new_thickness|length}})</th>
+		<td>
+			{%for n in new_thickness %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+	</tr>
+
+	<tr>
+		<th>reconstruction softwares: ({{new_reconstruction_software|length}})</th>
+		<td>
+			{%for n in new_reconstruction_software %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_reconstruction_software|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>protocols: ({{new_protocol|length}})</th>
+		<td>
+			{%for n in new_protocol %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_protocol|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>original formats: ({{new_original_format|length}})</th>
+		<td>
+			{%for n in new_original_format %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_original_format|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>objective types: ({{new_objective_type|length}})</th>
+		<td>
+			{%for n in new_objective_type %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_objective_type|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>magnification: ({{new_magnification|length}})</th>
+		<td>
+			{%for n in new_magnification %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_objective_type|join:", " }}
+		</th> -->
+	</tr>
+
+	<tr>
+		<th>experiment conditions: ({{new_expercond|length}})</th>
+		<td>
+			{%for n in new_expercond %}
+			{{n}}
+			[
+				{% for item in data|get_item:n %}
+				<a href="{% url 'mydatasets:dataset_detail' item.id %}">{{item.archive_name}}</a>
+				{%endfor%}
+			]
+			<br>
+			{%endfor%}
+		</td>
+		<!-- <th>
+			{{ new_expercond|join:", " }}
+		</th> -->
+	</tr>
+	
+	</table>
+	
+
+{% endblock %}
+
+{% block footer %}
+    Created by {{ neuron.user }} on {{ neuron.date }}
+{% endblock %}

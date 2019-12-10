@@ -1,0 +1,54 @@
+{% extends "mydatasets/base.html" %}
+{% load app_filters %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span>Labs
+</a>
+{% endblock %}
+
+{% block content %}
+
+
+<br>
+
+<h3>
+		<span class="glyphicon glyphicon-list"></span> List of NeuroMorpho.Org contribiutors
+</h3>
+
+<div class="well well">
+	<div class="btn-toolbar">
+		<div class="row">
+		<div class="col-sm-6">
+			<p>Filter the list based on versions.</p>
+		</div>
+		<div class="col-sm-6">          
+			<form type="get" action="{% url 'mydatasets:labs' %}">
+			<div class="input-group">
+				<input type="search" class="form-control" id="version" name="version" value="{{version}}" placeholder="Version (Exp: 7.5) "/>
+				<div class="input-group-btn">
+				<button class="btn btn-primary" type="submit">
+					<span class="glyphicon glyphicon-search"></span>
+				</button>
+				</div> <!-- input group btn -->
+			</div> <!-- input group -->
+			</form>
+		</div>
+		</div>
+	</div>
+</div>
+
+
+{% for lab in labs %}
+<span class="glyphicon glyphicon-minus"></span> 
+<strong>{{lab.lab_name}}</strong> <br>
+<span>&#8211;</span>	{{lab.institute}} <br>
+<span>&#8211;</span>	{{lab.address}} <br> <hr>
+{%endfor%}
+	
+
+{% endblock %}
+
+{% block footer %}
+    Created by 
+{% endblock %}

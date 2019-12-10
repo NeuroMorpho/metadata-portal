@@ -1,0 +1,56 @@
+{% extends "mydatasets/base.html" %}
+
+{% block address %}
+<a style="font-size: 15px; margin-left: -28px" class="navbar-brand" href="#">
+<sub> <span class="glyphicon glyphicon-triangle-right"></span> {% if archive %} Archives {% else %} Datasets {% endif %}
+</a>
+{% endblock %}
+
+{% block content %}
+
+<br>
+<div class="well well">
+  <div class="btn-toolbar">
+    <div class="row">
+      <div class="col-sm-4">
+        {% if user.is_authenticated or user.is_superuser and not archive %}
+        <a title="create a new Dataset!" class="btn btn-primary" href="{% url 'mydatasets:add_dataset' %}"> <span class="glyphicon glyphicon-file"></span> New!</a>  
+        {% endif %}
+      </div>
+      <div class="col-sm-4">
+        {% if user.is_superuser and not archive %}
+        <p><strong>{{ready}}</strong> ready and <strong>{{ongoing}}</strong> ongoing datasets!</p>
+        {%endif%}
+      </div>
+      <div class="col-sm-4">          
+        <form type="get" action="{% url 'mydatasets:search' %}">
+          <div class="input-group">
+            <input type="search" class="form-control" id="q" name="q" placeholder="Query..."/>
+            <div class="input-group-btn">
+              <button class="btn btn-primary" type="submit">
+                <span class="glyphicon glyphicon-search"></span>
+              </button>
+            </div> <!-- input group btn -->
+          </div> <!-- input group -->
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- carousel -->
+{% include "mydatasets/carousel.html" %}
+
+<h3>
+  {% if archive %}
+  <span class="glyphicon glyphicon-list"></span> Archives
+  {% else %}
+  <span class="glyphicon glyphicon-list"></span> Datasets
+  {% endif %}
+</h3>
+
+<!-- list all the datasets -->
+{% include "mydatasets/datasets.html" %}
+
+
+{% endblock %}

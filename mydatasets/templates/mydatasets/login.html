@@ -1,0 +1,24 @@
+{% extends "mydatasets/templates/mydatasets/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
+{% block toggle_login %}{% endblock %}
+
+{% block heading %}
+  <h2>Login</h2>
+{% endblock %}
+
+{% block content %}
+  <form action="{% url "meta_login" %}" method="post" accept-charset="utf-8">
+    {{ form|crispy }}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <input class="btn btn-default" type="submit" value="Login*">
+  </form>
+
+  <hr>
+  <p><strong>other login options...</strong></p>
+  <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
+
+{% endblock %}
