@@ -4,7 +4,7 @@
   <h3 align="center">Metadata Portal</h3>
 
   <p align="center">
-     An open-source project for annotation of neuronal reconstructions.
+     An open-source project for annotating neuronal reconstructions in neuroscience litrature.
     <br />
     <a href="http://cng-nmo-meta.orc.gmu.edu/"><strong>View online »</strong></a>
     <br />
