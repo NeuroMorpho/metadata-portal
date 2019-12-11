@@ -131,6 +131,8 @@ $ python manage.py migrate #to start the development server
 ```sh
 $ python manage.py runserver
 ```
+10. Enjoy!
+
 <!-- USAGE EXAMPLES -->
 ## Usage
 
