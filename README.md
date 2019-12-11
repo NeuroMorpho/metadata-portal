@@ -51,21 +51,43 @@ Key features:
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This is an example of how you may set up the metadata portal locally to integrate it for your personal use.
+Please clone or download the source code and follow these example steps.
 
 ### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-```sh
-npm install npm@latest -g
+This project requires you to have your database sat up. Once you have the credentials for the database put them in the `./metadata/settings.py` file.
+* ./metadata/settings.py
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', // for example our database is PostgreSQL
+        'NAME': 'ADD YOURS',
+	    'USER': 'ADD YOURS',
+	    'PASSWORD': 'ADD YOURS',
+	    'HOST': 'ADD YOURS', 
+	    'PORT': 'ADD YOURS',
+    }
+}
+```
+Or simply use sqlite:
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Download and install Python and pip for your prefered operating system. (https://www.python.org/downloads/)
+```sh
+$ sudo apt-get update
+$ sudo apt-get install python2.7
+$ sudo apt-get install python-pip
+```
+2. It’s highly recommended to install `Virtualenv` that creates new isolated environments to isolates your Python files on a per-project basis. That will ensure that any modifications made to your project won’t affect others you’re developing. The interesting part is that you can create virtual environments with different python versions, with each environment having its own set of packages.
 ```sh
 git clone https://github.com/your_username_/Project-Name.git
 ```
@@ -79,13 +101,11 @@ const API_KEY = 'ENTER YOUR API';
 ```
 
 
-
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 The web-based implementation naturally enables its direct usage by the authors of the articles described the original datasets, namely the data contributors. Considering the dramatically improved performance of metadata annotation, we invite all researchers depositing their neuronal and glial tracings into [NeuroMorpho.Org](http://neuromorpho.org/) to utilize the portal for annotating their submission.
 _For more help, please refer to the [Help Page](http://cng-nmo-meta.orc.gmu.edu/help/)_
-
 
 
 <!-- CONTRIBUTING -->
@@ -121,8 +141,6 @@ Distributed under the GPL 3.0 License.
 * [NeuroMorpho.Org](http://neuromorpho.org/)
 * [Office of Research Computing](https://orc.gmu.edu/)
 * [George Mason University](https://www2.gmu.edu/)
-
-
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
