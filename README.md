@@ -41,8 +41,8 @@ Key features:
 * Easy to integrate
 
 ### Built With
-* [Python] (https://www.python.org/)
-* [Django] (https://www.djangoproject.com/)
+* [Python](https://www.python.org/)
+* [Django](https://www.djangoproject.com/)
 * [Bootstrap](https://getbootstrap.com)
 * [JQuery](https://jquery.com)
 * [PostgreSQL](https://www.postgresql.org/)
@@ -97,7 +97,7 @@ Contributions are what make the open source community such an amazing place to b
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request [if you like]
+5. Open a Pull Request (if you like)
 
 
 
@@ -110,9 +110,9 @@ Distributed under the GPL 3.0 License.
 <!-- CONTACT -->
 ## Contact
 
-Kayvan Bijari - kbijari[@]gmu[dot]edu
-Project Link: [Metadata Portal](http://cng-nmo-meta.orc.gmu.edu/)
-Source Link: [GitHub](https://github.com/NeuroMorpho/metadata-portal)
+- Kayvan Bijari - kbijari[@]gmu[dot]edu
+- Project Link: [Metadata Portal](http://cng-nmo-meta.orc.gmu.edu/)
+- Source Link: [GitHub](https://github.com/NeuroMorpho/metadata-portal)
 
 
 <!-- ACKNOWLEDGEMENTS -->
