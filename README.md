@@ -83,24 +83,57 @@ DATABASES = {
 
 1. Download and install Python and pip for your prefered operating system. (https://www.python.org/downloads/)
 ```sh
+# ubuntu:
 $ sudo apt-get update
 $ sudo apt-get install python2.7
 $ sudo apt-get install python-pip
 ```
 2. It’s highly recommended to install `Virtualenv` that creates new isolated environments to isolates your Python files on a per-project basis. That will ensure that any modifications made to your project won’t affect others you’re developing. The interesting part is that you can create virtual environments with different python versions, with each environment having its own set of packages.
 ```sh
-git clone https://github.com/your_username_/Project-Name.git
+$ pip install virtualenv
+Collecting virtualenv
+  Downloading virtualenv-x.x.x-pyx.pyx-none-any.whl (1.8MB)
+  100% |████████████████████████████████| 1.8MB 367kB/s
+Installing collected packages: virtualenv
+Successfully installed virtualenv-x.x.x
 ```
-3. Install NPM packages
+3. Make your virtual environment
 ```sh
-npm install
+$ python -m venv myvenv
 ```
-4. Enter your API in `config.js`
-```JS
-const API_KEY = 'ENTER YOUR API';
+4. Activate the virtual environment
+```sh
+$ source ./myvenv/bin/activate
+>> (myvenv) $
 ```
+5. Install the required Python packages
+```sh
+$ pip install -r req.txt --no-index --find-links file:///tmp/packages
+```
+6. obtain a secret from [MiniWebTool](https://miniwebtool.com/django-secret-key-generator/) key and add to `settings.py`
+```
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'PUT/MAKE YOURS'
+```
+7. Migrate
+```sh
+$ python manage.py migrate
+```
+8. Create admin account and make migrations
+```sh
+python manage.py createsuperuser
 
+#then
 
+python manage.py makemigrations ig_miner_app #to makemigrations for the app
+
+#then again run
+python manage.py migrate #to start the development server
+```
+9. Run the server
+```sh
+$ python manage.py runserver
+```
 <!-- USAGE EXAMPLES -->
 ## Usage
 
