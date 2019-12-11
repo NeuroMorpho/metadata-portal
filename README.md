@@ -121,11 +121,11 @@ $ python manage.py migrate
 ```
 8. Create admin account and make migrations
 ```sh
-python manage.py createsuperuser
+$ python manage.py createsuperuser
 #then
-python manage.py makemigrations ig_miner_app #to makemigrations for the app
+$ python manage.py makemigrations ig_miner_app #to makemigrations for the app
 #then again run
-python manage.py migrate #to start the development server
+$ python manage.py migrate #to start the development server
 ```
 9. Run the server
 ```sh
