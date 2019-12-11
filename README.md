@@ -55,7 +55,7 @@ This is an example of how you may set up the metadata portal locally to integrat
 Please clone or download the source code and follow these example steps.
 
 ### Prerequisites
-This project requires you to have your database sat up. Once you have the credentials for the database put them in the `./metadata/settings.py` file.
+This project requires you to have your database set up before. Once you have the credentials for the database put them in the `./metadata/settings.py` file.
 * ./metadata/settings.py
 ```
 DATABASES = {
