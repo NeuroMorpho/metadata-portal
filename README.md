@@ -111,6 +111,7 @@ Distributed under the GPL 3.0 License.
 ## Contact
 
 - Kayvan Bijari - kbijari[@]gmu[dot]edu
+- NeuroMorpho.Org administration team - nmadmin[@]gmu[dot]edu
 - Project Link: [Metadata Portal](http://cng-nmo-meta.orc.gmu.edu/)
 - Source Link: [GitHub](https://github.com/NeuroMorpho/metadata-portal)
 
